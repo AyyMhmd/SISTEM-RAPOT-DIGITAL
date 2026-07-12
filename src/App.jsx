@@ -23,6 +23,7 @@ import InputCatatanWali from './pages/WaliKelas/InputCatatanWali';
 import CetakRapor from './pages/WaliKelas/CetakRapor';
 
 import DashboardKepsek from './pages/Kepsek/DashboardKepsek';
+import ValidasiRapor from './pages/Kepsek/ValidasiRapor';
 import DashboardSiswa from './pages/Siswa/DashboardSiswa';
 import BerandaSiswa from './pages/Siswa/BerandaSiswa';
 
@@ -93,6 +94,7 @@ function App() {
 
             <Route element={<ProtectedRoute allowedRoles={['KEPALA_SEKOLAH']} />}>
               <Route path="/kepsek" element={<DashboardKepsek />} />
+              <Route path="/kepsek/validasi" element={<ValidasiRapor />} />
             </Route>
 
             <Route element={<ProtectedRoute allowedRoles={['SISWA']} />}>

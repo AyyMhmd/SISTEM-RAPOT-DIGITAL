@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X, FileCheck } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Layout() {
@@ -114,6 +114,30 @@ export default function Layout() {
               <NavLink to="/guru/nilai" style={navLinkStyle}>
                 <FileEdit size={20} />
                 Input Nilai
+              </NavLink>
+            </>
+          )}
+
+          {/* Menu Khusus Kepala Sekolah */}
+          {role === 'KEPALA_SEKOLAH' && (
+            <>
+              <NavLink to="/kepsek" end style={navLinkStyle}>
+                <LayoutDashboard size={20} />
+                Dasbor Eksekutif
+              </NavLink>
+              <NavLink to="/kepsek/validasi" style={navLinkStyle}>
+                <FileCheck size={20} />
+                Validasi Rapor
+              </NavLink>
+            </>
+          )}
+
+          {/* Fallback menu jika belum ada menu spesifik */}
+          {!['TU', 'GURU_MAPEL', 'WALI_KELAS', 'SISWA', 'KEPALA_SEKOLAH'].includes(role) && (
+            <>
+              <NavLink to="/wali-kelas" end style={navLinkStyle}>
+                <LayoutDashboard size={20} />
+                Beranda
               </NavLink>
             </>
           )}

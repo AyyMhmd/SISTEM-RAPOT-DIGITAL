@@ -212,9 +212,22 @@ export default function RaporComponent({
           <p>................., ...........................</p>
           <p>Wali Kelas</p>
           <br /><br /><br />
-          <p><strong>{kelas?.users?.nama_lengkap}</strong></p>
+          <p><strong>{kelas?.users?.nama_lengkap || '...........................................'}</strong></p>
         </div>
       </div>
+
+      {raporWali?.is_approved_by_kepsek && (
+        <div style={{ display: 'flex', justifyContent: 'center', marginTop: '2rem' }}>
+          <div style={{ textAlign: 'center', border: '1px solid #e2e8f0', padding: '1rem', borderRadius: '8px', backgroundColor: '#f8fafc' }}>
+            <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.875rem', color: '#64748b' }}>Telah Divalidasi Oleh:</p>
+            <p style={{ margin: '0', fontWeight: 'bold' }}>Kepala Sekolah</p>
+            <div style={{ margin: '1rem 0', color: '#16a34a', fontWeight: 'bold', fontStyle: 'italic', fontSize: '1.25rem' }}>
+              ✓ Tanda Tangan Digital
+            </div>
+            <p style={{ margin: '0', fontSize: '0.875rem' }}>M. Ridwan, S.Pd., M.Pd.</p>
+          </div>
+        </div>
+      )}
 
       <style dangerouslySetInnerHTML={{
         __html: `
