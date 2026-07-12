@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Calendar, Save } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function Absensi() {
   const [kelas, setKelas] = useState([]);
@@ -102,11 +103,11 @@ export default function Absensi() {
         .upsert(payload, { onConflict: 'siswa_id,tanggal' });
 
       if (error) throw error;
-      alert('Absensi berhasil disimpan!');
+      Swal.fire('Berhasil!', 'Absensi berhasil disimpan!', 'success');
       fetchSiswaDanAbsensi(); // refresh data
     } catch (error) {
       console.error('Error saving absensi:', error);
-      alert('Gagal menyimpan absensi: ' + error.message);
+      Swal.fire('Error!', 'Gagal menyimpan absensi: ' + error.message, 'error');
     } finally {
       setSaving(false);
     }

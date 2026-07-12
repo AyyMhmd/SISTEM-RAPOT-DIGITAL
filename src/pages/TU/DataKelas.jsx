@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function DataKelas() {
   const [kelas, setKelas] = useState([]);
@@ -66,22 +67,36 @@ export default function DataKelas() {
       }
       
       setIsModalOpen(false);
+      Swal.fire('Berhasil!', 'Data kelas berhasil disimpan.', 'success');
       fetchKelas();
     } catch (error) {
       console.error('Error saving kelas:', error);
-      alert('Gagal menyimpan data.');
+      Swal.fire('Error!', 'Gagal menyimpan data: ' + error.message, 'error');
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus kelas ini? Data siswa di dalamnya bisa terpengaruh.')) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Data siswa di dalam kelas ini bisa terpengaruh!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--status-error)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const { error } = await supabase.from('kelas').delete().eq('id', id);
       if (error) throw error;
+      Swal.fire('Terhapus!', 'Kelas berhasil dihapus.', 'success');
       fetchKelas();
     } catch (error) {
       console.error('Error deleting kelas:', error);
-      alert('Gagal menghapus kelas.');
+      Swal.fire('Error!', 'Gagal menghapus kelas.', 'error');
     }
   };
 

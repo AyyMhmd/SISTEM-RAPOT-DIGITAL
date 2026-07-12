@@ -26,6 +26,7 @@ import DashboardKepsek from './pages/Kepsek/DashboardKepsek';
 import ValidasiRapor from './pages/Kepsek/ValidasiRapor';
 import DashboardSiswa from './pages/Siswa/DashboardSiswa';
 import BerandaSiswa from './pages/Siswa/BerandaSiswa';
+import Profil from './pages/Shared/Profil';
 
 // Komponen penengah untuk redirect dari root '/' ke dashboard masing-masing role
 function RootRedirect() {
@@ -79,7 +80,7 @@ function App() {
               <Route path="/tu/jadwal" element={<JadwalMengajar />} />
             </Route>
 
-            <Route element={<ProtectedRoute allowedRoles={['GURU_MAPEL']} />}>
+            <Route element={<ProtectedRoute allowedRoles={['GURU_MAPEL', 'WALI_KELAS']} />}>
               <Route path="/guru" element={<DashboardGuru />} />
               <Route path="/guru/nilai" element={<InputNilai />} />
             </Route>
@@ -100,6 +101,11 @@ function App() {
             <Route element={<ProtectedRoute allowedRoles={['SISWA']} />}>
               <Route path="/siswa" element={<BerandaSiswa />} />
               <Route path="/siswa/rapor" element={<DashboardSiswa />} />
+            </Route>
+
+            {/* Rute Shared (Dapat diakses semua role) */}
+            <Route element={<ProtectedRoute allowedRoles={['TU', 'GURU_MAPEL', 'WALI_KELAS', 'KEPALA_SEKOLAH', 'SISWA']} />}>
+              <Route path="/profil" element={<Profil />} />
             </Route>
           </Route>
         </Routes>

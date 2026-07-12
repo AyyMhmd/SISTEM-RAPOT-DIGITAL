@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
-import { Save } from 'lucide-react';
+import { Save, AlertCircle } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function InputNilai() {
   const { user } = useAuth();
@@ -140,10 +141,10 @@ export default function InputNilai() {
         .upsert(payload, { onConflict: 'siswa_id,mapel_id,semester,tahun_ajaran' });
 
       if (error) throw error;
-      alert('Nilai berhasil disimpan!');
+      Swal.fire('Berhasil!', 'Nilai berhasil disimpan!', 'success');
     } catch (error) {
       console.error('Error saving nilai:', error);
-      alert('Gagal menyimpan nilai: ' + error.message);
+      Swal.fire('Error!', 'Gagal menyimpan nilai: ' + error.message, 'error');
     } finally {
       setSaving(false);
     }

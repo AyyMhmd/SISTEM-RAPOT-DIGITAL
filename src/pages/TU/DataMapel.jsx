@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Trash2, Edit2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function DataMapel() {
   const [mapel, setMapel] = useState([]);
@@ -60,24 +61,38 @@ export default function DataMapel() {
         if (error) throw error;
       }
       setIsModalOpen(false);
+      Swal.fire('Berhasil!', 'Data mata pelajaran berhasil disimpan.', 'success');
       fetchMapel();
     } catch (error) {
       console.error('Error saving mapel:', error);
-      alert('Gagal menyimpan mapel');
+      Swal.fire('Error!', 'Gagal menyimpan mapel: ' + error.message, 'error');
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus mata pelajaran ini?')) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Yakin ingin menghapus mata pelajaran ini?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--status-error)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const { error } = await supabase.from('mapel').delete().eq('id', id);
       if (error) throw error;
+      Swal.fire('Terhapus!', 'Mata pelajaran berhasil dihapus.', 'success');
       fetchMapel();
     } catch (error) {
       console.error('Error deleting mapel:', error);
-      alert('Gagal menghapus mapel');
+      Swal.fire('Error!', 'Gagal menghapus mapel.', 'error');
     }
   };
 

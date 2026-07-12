@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
-import { Save } from 'lucide-react';
+import { Save, AlertCircle } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function InputCatatanWali() {
   const { user } = useAuth();
@@ -108,10 +109,10 @@ export default function InputCatatanWali() {
         .upsert(payload, { onConflict: 'siswa_id,semester,tahun_ajaran' });
 
       if (error) throw error;
-      alert('Data catatan wali kelas berhasil disimpan!');
+      Swal.fire('Berhasil!', 'Data catatan wali kelas berhasil disimpan!', 'success');
     } catch (error) {
-      console.error('Error saving rapor wali kelas:', error);
-      alert('Gagal menyimpan data.');
+      console.error('Error saving records:', error);
+      Swal.fire('Error!', 'Gagal menyimpan data.', 'error');
     } finally {
       setSaving(false);
     }

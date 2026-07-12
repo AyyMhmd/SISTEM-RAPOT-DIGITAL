@@ -63,19 +63,20 @@ export default function BerandaSiswa() {
 
       setRiwayatNilai(chartData);
 
-      // Fetch rapor_wali_kelas untuk absensi
-      const { data: raporWaliData, error: raporError } = await supabase
-        .from('rapor_wali_kelas')
-        .select('*')
+      // Fetch absensi harian secara langsung
+      const { data: absensiData, error: absensiError } = await supabase
+        .from('absensi')
+        .select('status')
         .eq('siswa_id', siswaId);
 
-      if (raporError) throw raporError;
+      if (absensiError) throw absensiError;
 
       let tSakit = 0, tIzin = 0, tAlpa = 0;
-      raporWaliData.forEach(rw => {
-        tSakit += (rw.sakit || 0);
-        tIzin += (rw.izin || 0);
-        tAlpa += (rw.alpa || 0);
+      absensiData.forEach(a => {
+        const status = a.status?.toUpperCase();
+        if (status === 'SAKIT') tSakit++;
+        if (status === 'IZIN') tIzin++;
+        if (status === 'ALPA') tAlpa++;
       });
 
       setTotalAbsensi({ sakit: tSakit, izin: tIzin, alpa: tAlpa });

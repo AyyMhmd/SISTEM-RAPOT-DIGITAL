@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Trash2, Eye, EyeOff } from 'lucide-react';
+import { Plus, Trash2, Edit2, Eye, EyeOff, Shield, RefreshCw } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function DataPengguna() {
   const [pengguna, setPengguna] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState(null);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -56,39 +58,92 @@ export default function DataPengguna() {
     setErrorMsg('');
 
     try {
-      const { data, error } = await supabase.rpc('create_user_by_tu', {
-        new_email: formData.email,
-        new_password: formData.password,
-        new_nama_lengkap: formData.nama_lengkap,
-        new_role: formData.role
-      });
+      if (editingId) {
+        // Mode Edit: Hanya ubah role dan nama_lengkap di tabel users
+        const { error } = await supabase
+          .from('users')
+          .update({
+            nama_lengkap: formData.nama_lengkap,
+            role: formData.role
+          })
+          .eq('id', editingId);
 
-      if (error) throw error;
+        if (error) throw error;
+        Swal.fire({
+          title: 'Berhasil!',
+          text: 'Data pengguna berhasil diperbarui.',
+          icon: 'success'
+        });
+      } else {
+        // Mode Tambah: Buat user auth baru
+        let finalEmail = formData.email.trim();
+        if (!finalEmail.includes('@')) {
+          finalEmail = `${finalEmail}@smknangkaleah.sch.id`;
+        }
 
-      alert(`Berhasil membuat pengguna!\nEmail: ${formData.email}\nPassword: ${formData.password}\nSimpan password ini karena tidak akan ditampilkan lagi!`);
+        const { data, error } = await supabase.rpc('create_user_by_tu', {
+          new_email: finalEmail.toLowerCase(),
+          new_password: formData.password,
+          new_nama_lengkap: formData.nama_lengkap,
+          new_role: formData.role
+        });
+
+        if (error) throw error;
+
+        Swal.fire({
+          title: 'Berhasil membuat pengguna!',
+          html: `<b>Username/NUPTK:</b> ${formData.email}<br/><b>Password:</b> ${formData.password}<br/><br/><small style="color:red">Simpan password ini karena tidak akan ditampilkan lagi!</small>`,
+          icon: 'success'
+        });
+      }
       setIsModalOpen(false);
+      setEditingId(null);
       setFormData({ email: '', nama_lengkap: '', role: 'GURU_MAPEL', password: '' });
       setGeneratedPassword('');
       fetchPengguna();
     } catch (error) {
-      console.error('Error creating user:', error);
-      setErrorMsg(error.message || 'Gagal membuat pengguna');
+      console.error('Error saving user:', error);
+      setErrorMsg(error.message || 'Gagal menyimpan pengguna');
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus pengguna ini? (Aksi ini belum menghapus sesi login di Auth Supabase jika trigger belum dibuat)')) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Yakin ingin menghapus pengguna ini? (Sesi login di Auth Supabase juga akan terpengaruh)",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--status-error)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
     
     try {
       const { error } = await supabase.from('users').delete().eq('id', id);
       if (error) throw error;
+      Swal.fire('Terhapus!', 'Pengguna berhasil dihapus.', 'success');
       fetchPengguna();
     } catch (error) {
       console.error('Error deleting user:', error);
-      alert('Gagal menghapus pengguna.');
+      Swal.fire('Error!', 'Gagal menghapus pengguna.', 'error');
     }
+  };
+
+  const handleEdit = (u) => {
+    setEditingId(u.id);
+    setFormData({
+      email: u.email.endsWith('@smknangkaleah.sch.id') ? u.email.split('@')[0] : u.email,
+      nama_lengkap: u.nama_lengkap,
+      role: u.role,
+      password: ''
+    });
+    setGeneratedPassword('');
+    setIsModalOpen(true);
   };
 
   return (
@@ -97,6 +152,8 @@ export default function DataPengguna() {
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Kelola Data Pengguna</h1>
         <button 
           onClick={() => {
+            setEditingId(null);
+            setFormData({ email: '', nama_lengkap: '', role: 'GURU_MAPEL', password: '' });
             generatePassword();
             setIsModalOpen(true);
           }}
@@ -116,7 +173,7 @@ export default function DataPengguna() {
           <thead style={{ backgroundColor: 'var(--secondary)' }}>
             <tr>
               <th style={{ padding: '1rem', fontWeight: 600 }}>Nama Lengkap</th>
-              <th style={{ padding: '1rem', fontWeight: 600 }}>Email</th>
+              <th style={{ padding: '1rem', fontWeight: 600 }}>Username / NUPTK</th>
               <th style={{ padding: '1rem', fontWeight: 600 }}>Role</th>
               <th style={{ padding: '1rem', fontWeight: 600, width: '100px' }}>Aksi</th>
             </tr>
@@ -129,8 +186,12 @@ export default function DataPengguna() {
             ) : (
               pengguna.map((u) => (
                 <tr key={u.id} style={{ borderTop: '1px solid var(--secondary)' }}>
-                  <td style={{ padding: '1rem' }}>{u.nama_lengkap}</td>
-                  <td style={{ padding: '1rem' }}>{u.email}</td>
+                  <td style={{ padding: '1rem', fontWeight: 600 }}>{u.nama_lengkap}</td>
+                  <td style={{ padding: '1rem' }}>
+                    {u.email.endsWith('@smknangkaleah.sch.id') 
+                      ? u.email.split('@')[0] 
+                      : u.email}
+                  </td>
                   <td style={{ padding: '1rem' }}>
                     <span style={{ 
                       padding: '0.25rem 0.75rem', 
@@ -144,13 +205,22 @@ export default function DataPengguna() {
                     </span>
                   </td>
                   <td style={{ padding: '1rem' }}>
-                    <button 
-                      onClick={() => handleDelete(u.id)}
-                      style={{ background: 'none', border: 'none', color: 'var(--status-error)', cursor: 'pointer', padding: '0.5rem' }}
-                      title="Hapus"
-                    >
-                      <Trash2 size={18} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <button 
+                        onClick={() => handleEdit(u)}
+                        style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.5rem' }}
+                        title="Edit"
+                      >
+                        <Edit2 size={18} />
+                      </button>
+                      <button 
+                        onClick={() => handleDelete(u.id)}
+                        style={{ background: 'none', border: 'none', color: 'var(--status-error)', cursor: 'pointer', padding: '0.5rem' }}
+                        title="Hapus"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -170,7 +240,7 @@ export default function DataPengguna() {
             backgroundColor: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)', 
             width: '100%', maxWidth: '500px' 
           }}>
-            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Tambah Pengguna Baru</h2>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>{editingId ? 'Edit Pengguna' : 'Tambah Pengguna Baru'}</h2>
             
             {errorMsg && (
               <div style={{ padding: '0.75rem', backgroundColor: '#FEF2F2', color: 'var(--status-error)', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>
@@ -189,11 +259,11 @@ export default function DataPengguna() {
               </div>
               
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Email</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Username / NUPTK {editingId && '(Tidak dapat diubah)'}</label>
                 <input 
-                  type="email" required value={formData.email} 
+                  type="text" required={!editingId} value={formData.email} disabled={!!editingId}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
-                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)', backgroundColor: editingId ? 'var(--bg-main)' : 'white' }}
                 />
               </div>
 
@@ -213,38 +283,45 @@ export default function DataPengguna() {
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Password (Auto-generated)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Password {editingId ? '(Tidak dapat diubah di sini)' : '(Auto-generated)'}</label>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input 
                     type={showPassword ? "text" : "password"} 
-                    value={formData.password} 
+                    value={editingId ? '********' : formData.password} 
+                    disabled={!!editingId}
                     onChange={(e) => {
                       setFormData({...formData, password: e.target.value});
                       setGeneratedPassword(e.target.value);
                     }}
-                    style={{ flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                    style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)', backgroundColor: editingId ? 'var(--bg-main)' : 'white' }}
                   />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)} style={{ padding: '0 1rem', cursor: 'pointer' }}>
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                  <button type="button" onClick={generatePassword} style={{ padding: '0 1rem', cursor: 'pointer' }}>Generate</button>
+                  {!editingId && (
+                    <>
+                      <button 
+                        type="button" 
+                        onClick={() => setShowPassword(!showPassword)}
+                        style={{ padding: '0 1rem', background: 'none', border: '1px solid var(--secondary)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                      >
+                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                      </button>
+                      <button 
+                        type="button" 
+                        onClick={generatePassword}
+                        style={{ padding: '0 1rem', background: 'none', border: '1px solid var(--secondary)', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        title="Generate Ulang Password"
+                      >
+                        <RefreshCw size={18} />
+                      </button>
+                    </>
+                  )}
                 </div>
-                <small style={{ color: 'var(--text-muted)' }}>* Salin password ini untuk diberikan kepada pengguna.</small>
               </div>
 
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: 'transparent', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
-                >
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
+                <button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   Batal
                 </button>
-                <button 
-                  type="submit" 
-                  disabled={submitLoading}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
-                >
+                <button type="submit" disabled={submitLoading} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>

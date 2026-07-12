@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import RaporComponent from '../../components/RaporComponent';
+import Swal from 'sweetalert2';
 
 export default function CetakRapor() {
   const { user } = useAuth();
@@ -109,7 +110,7 @@ export default function CetakRapor() {
 
     } catch (error) {
       console.error('Error fetching rapor:', error);
-      alert('Gagal memuat data rapor siswa.');
+      Swal.fire('Error!', 'Gagal memuat data rapor siswa.', 'error');
     } finally {
       setRaporLoading(false);
     }
@@ -121,7 +122,7 @@ export default function CetakRapor() {
 
   const handleKirimWA = () => {
     if (!raporData || !raporData.siswa.no_hp_ortu) {
-      alert('Nomor HP Orang Tua / Wali tidak tersedia untuk siswa ini. Silakan hubungi Tata Usaha untuk melengkapinya.');
+      Swal.fire('Info', 'Nomor HP Orang Tua / Wali tidak tersedia untuk siswa ini. Silakan hubungi Tata Usaha untuk melengkapinya.', 'info');
       return;
     }
 

@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { UsersRound, School, Users, Activity, Download } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import * as XLSX from 'xlsx';
+import Swal from 'sweetalert2';
 
 export default function DashboardKepsek() {
   const [stats, setStats] = useState({
@@ -94,7 +95,7 @@ export default function DashboardKepsek() {
 
   const exportToExcel = () => {
     if (chartData.length === 0) {
-      alert("Belum ada data untuk diekspor!");
+      Swal.fire('Info', 'Belum ada data untuk diekspor!', 'info');
       return;
     }
     const worksheet = XLSX.utils.json_to_sheet(chartData);

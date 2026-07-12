@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Plus, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Trash2, Edit2, UploadCloud } from 'lucide-react';
+import Swal from 'sweetalert2';
+import * as XLSX from 'xlsx';
 
 export default function DataSiswa() {
   const [siswa, setSiswa] = useState([]);
@@ -20,10 +22,15 @@ export default function DataSiswa() {
     tempat_lahir: '',
     tanggal_lahir: '',
     agama: '',
+    alamat: '',
+    nama_ayah: '',
+    nama_ibu: '',
     kelas_id: '',
     no_hp_ortu: '',
     user_id: ''
   });
+
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     fetchData();
@@ -66,6 +73,9 @@ export default function DataSiswa() {
         tempat_lahir: s.tempat_lahir || '',
         tanggal_lahir: s.tanggal_lahir || '',
         agama: s.agama || '',
+        alamat: s.alamat || '',
+        nama_ayah: s.nama_ayah || '',
+        nama_ibu: s.nama_ibu || '',
         kelas_id: s.kelas_id || (kelas.length > 0 ? kelas[0].id : ''),
         no_hp_ortu: s.no_hp_ortu || '',
         user_id: s.user_id || ''
@@ -74,7 +84,8 @@ export default function DataSiswa() {
     } else {
       setFormData({
         nisn: '', nis: '', nama_lengkap: '', jenis_kelamin: 'L',
-        tempat_lahir: '', tanggal_lahir: '', agama: '', 
+        tempat_lahir: '', tanggal_lahir: '', agama: '', alamat: '',
+        nama_ayah: '', nama_ibu: '',
         kelas_id: kelas.length > 0 ? kelas[0].id : '',
         no_hp_ortu: '',
         user_id: ''
@@ -103,42 +114,234 @@ export default function DataSiswa() {
       }
 
       setIsModalOpen(false);
+      Swal.fire('Berhasil!', 'Data siswa berhasil disimpan.', 'success');
       fetchData();
     } catch (error) {
       console.error('Error saving siswa:', error);
-      alert('Gagal menyimpan data siswa: ' + error.message);
+      Swal.fire('Error!', 'Gagal menyimpan data siswa: ' + error.message, 'error');
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus siswa ini?')) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Yakin ingin menghapus siswa ini?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--status-error)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const { error } = await supabase.from('siswa').delete().eq('id', id);
       if (error) throw error;
+      Swal.fire('Terhapus!', 'Siswa berhasil dihapus.', 'success');
       fetchData();
     } catch (error) {
       console.error('Error deleting siswa:', error);
-      alert('Gagal menghapus siswa');
+      Swal.fire('Error!', 'Gagal menghapus siswa.', 'error');
     }
+  };
+
+  const handleFileUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 1. Minta user memilih kelas tujuan terlebih dahulu
+    if (kelas.length === 0) {
+      Swal.fire('Error', 'Belum ada data kelas. Silakan tambahkan kelas terlebih dahulu.', 'error');
+      return;
+    }
+
+    const kelasOptions = {};
+    kelas.forEach(k => {
+      kelasOptions[k.id] = k.nama_kelas;
+    });
+
+    const { value: selectedKelasId } = await Swal.fire({
+      title: 'Pilih Kelas Tujuan',
+      text: 'Siswa dari file Excel ini akan dimasukkan ke kelas mana?',
+      input: 'select',
+      inputOptions: kelasOptions,
+      inputPlaceholder: 'Pilih Kelas...',
+      showCancelButton: true,
+      inputValidator: (value) => {
+        return new Promise((resolve) => {
+          if (value) resolve();
+          else resolve('Anda harus memilih kelas tujuan!');
+        });
+      }
+    });
+
+    if (!selectedKelasId) {
+      e.target.value = null; // Reset input
+      return;
+    }
+
+    // 2. Baca file Excel
+    const reader = new FileReader();
+    reader.onload = async (evt) => {
+      try {
+        const bstr = evt.target.result;
+        const wb = XLSX.read(bstr, { type: 'binary' });
+        const wsname = wb.SheetNames[0];
+        const ws = wb.Sheets[wsname];
+        const data = XLSX.utils.sheet_to_json(ws);
+
+        if (data.length === 0) {
+          Swal.fire('Error', 'File Excel kosong!', 'error');
+          return;
+        }
+
+        Swal.fire({
+          title: 'Memproses Import...',
+          html: 'Mohon tunggu, jangan tutup halaman ini.<br/>Sistem sedang membuatkan akun login & menyimpan data.',
+          allowOutsideClick: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const row of data) {
+          const nisn = row['NISN']?.toString() || row['nisn']?.toString() || '';
+          if (!nisn) {
+            failCount++;
+            continue; // Skip jika tidak ada NISN
+          }
+
+          const nis = row['NIS']?.toString() || row['nis']?.toString() || '';
+          const nama = row['Nama Lengkap'] || row['nama'] || row['NAMA'] || 'Siswa Tanpa Nama';
+          const lp = row['L/P'] || row['JK'] || row['Jenis Kelamin'] || 'L';
+          const jk = lp.toUpperCase().startsWith('P') ? 'P' : 'L';
+          const tempatLahir = row['Tempat Lahir'] || '';
+          const agama = row['Agama'] || '';
+          const alamat = row['Alamat'] || '';
+          const namaAyah = row['Nama Ayah'] || '';
+          const namaIbu = row['Nama Ibu'] || '';
+          
+          let tanggalLahir = null;
+          // Excel date to JS Date if it's a number
+          if (row['Tanggal Lahir'] && !isNaN(row['Tanggal Lahir'])) {
+            const excelDate = row['Tanggal Lahir'];
+            const jsDate = new Date(Math.round((excelDate - 25569) * 86400 * 1000));
+            tanggalLahir = jsDate.toISOString().split('T')[0];
+          } else if (typeof row['Tanggal Lahir'] === 'string') {
+            // Coba parsing standar
+            tanggalLahir = row['Tanggal Lahir']; 
+          }
+
+          // Generate Email & Password Default
+          const email = `${nisn}@smknangkaleah.sch.id`.toLowerCase();
+          const password = `Siswa123!`;
+
+          try {
+            // 1. Buat User Auth (jika email sudah ada, mungkin akan error, kita tangkap)
+            const { data: userRes, error: userErr } = await supabase.rpc('create_user_by_tu', {
+              new_email: email,
+              new_password: password,
+              new_nama_lengkap: nama,
+              new_role: 'SISWA'
+            });
+
+            let newUserId = null;
+            if (userErr) {
+              console.warn(`Gagal buat user untuk ${nama}:`, userErr.message);
+              // Lanjut tanpa user_id jika gagal, atau bisa juga dicari user yang sudah ada
+            } else {
+              // RPC mengembalikan array UUID, userRes[0] adalah ID
+              newUserId = userRes && userRes.length > 0 ? userRes[0] : null;
+            }
+
+            // 2. Simpan Data Siswa
+            const payload = {
+              nisn,
+              nis,
+              nama_lengkap: nama,
+              jenis_kelamin: jk,
+              kelas_id: selectedKelasId,
+              tempat_lahir: tempatLahir,
+              tanggal_lahir: tanggalLahir,
+              agama,
+              alamat,
+              nama_ayah: namaAyah,
+              nama_ibu: namaIbu,
+              user_id: newUserId
+            };
+
+            const { error: insertErr } = await supabase.from('siswa').insert([payload]);
+            if (insertErr) {
+              // Jika konflik (NISN sudah ada), abaikan atau catat
+              failCount++;
+            } else {
+              successCount++;
+            }
+            
+          } catch (err) {
+            failCount++;
+          }
+        } // End loop
+
+        fetchData();
+        Swal.fire(
+          'Import Selesai!',
+          `Berhasil: ${successCount} siswa.<br/>Gagal/Dilewati: ${failCount} siswa (NISN duplikat atau kosong).`,
+          'success'
+        );
+
+      } catch (err) {
+        console.error("Parse error", err);
+        Swal.fire('Error', 'Gagal memproses file Excel. Pastikan formatnya benar.', 'error');
+      } finally {
+        e.target.value = null; // Reset
+      }
+    };
+    reader.readAsBinaryString(file);
   };
 
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Kelola Data Siswa</h1>
-        <button 
-          onClick={() => handleOpenModal()}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundColor: 'var(--primary)', color: 'white',
-            padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
-            border: 'none', cursor: 'pointer', fontWeight: 600
-          }}
-        >
-          <Plus size={18} /> Tambah Siswa
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <input 
+            type="file" 
+            accept=".xlsx, .xls" 
+            ref={fileInputRef} 
+            onChange={handleFileUpload} 
+            style={{ display: 'none' }} 
+          />
+          <button 
+            onClick={() => fileInputRef.current?.click()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              backgroundColor: '#10b981', color: 'white',
+              padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
+              border: 'none', cursor: 'pointer', fontWeight: 600
+            }}
+          >
+            <UploadCloud size={18} /> Import Excel
+          </button>
+          <button 
+            onClick={() => handleOpenModal()}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              backgroundColor: 'var(--primary)', color: 'white',
+              padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
+              border: 'none', cursor: 'pointer', fontWeight: 600
+            }}
+          >
+            <Plus size={18} /> Tambah Siswa
+          </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', overflowX: 'auto' }}>
@@ -270,6 +473,38 @@ export default function DataSiswa() {
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Tanggal Lahir</label>
                 <input 
                   type="date" value={formData.tanggal_lahir} onChange={(e) => setFormData({...formData, tanggal_lahir: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Agama</label>
+                <input 
+                  type="text" placeholder="Islam / Kristen / dll" value={formData.agama} onChange={(e) => setFormData({...formData, agama: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Alamat Lengkap</label>
+                <textarea 
+                  rows="2" value={formData.alamat} onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Nama Ayah</label>
+                <input 
+                  type="text" value={formData.nama_ayah} onChange={(e) => setFormData({...formData, nama_ayah: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Nama Ibu</label>
+                <input 
+                  type="text" value={formData.nama_ibu} onChange={(e) => setFormData({...formData, nama_ibu: e.target.value})}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
                 />
               </div>

@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X, FileCheck } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X, FileCheck, FileText, Printer } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Layout() {
@@ -57,8 +57,18 @@ export default function Layout() {
 
       {/* Sidebar */}
       <aside className={`sidebar ${isMobileMenuOpen ? 'open' : ''} no-print`}>
-        <div style={{ padding: '2rem 1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h2 style={{ color: 'white', margin: 0, fontSize: '1.25rem' }}>Rapor Digital</h2>
+        <div style={{ padding: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <img 
+              src="/logo.jpg" 
+              alt="Logo SMK Nangkaleah" 
+              style={{ width: '56px', height: '56px', objectFit: 'contain', borderRadius: '50%', backgroundColor: 'white', padding: '2px' }} 
+            />
+            <div>
+              <h2 style={{ color: 'white', margin: 0, fontSize: '1.125rem', lineHeight: '1.4' }}>SMK Nangkaleah</h2>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.75rem' }}>Sistem Rapor Digital</div>
+            </div>
+          </div>
           <button 
             className="mobile-only"
             onClick={() => setIsMobileMenuOpen(false)}
@@ -145,9 +155,12 @@ export default function Layout() {
           {/* Menu Khusus Wali Kelas */}
           {role === 'WALI_KELAS' && (
             <>
+              <div style={{ padding: '1rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Tugas Wali Kelas
+              </div>
               <NavLink to="/wali-kelas" end style={navLinkStyle}>
                 <LayoutDashboard size={20} />
-                Beranda
+                Beranda Wali Kelas
               </NavLink>
               <NavLink to="/wali-kelas/leger" style={navLinkStyle}>
                 <Activity size={20} />
@@ -158,12 +171,20 @@ export default function Layout() {
                 Rekap Absensi
               </NavLink>
               <NavLink to="/wali-kelas/catatan" style={navLinkStyle}>
-                <BookOpen size={20} />
-                Input Catatan
+                <FileText size={20} />
+                Catatan Wali Kelas
               </NavLink>
               <NavLink to="/wali-kelas/cetak" style={navLinkStyle}>
-                <GraduationCap size={20} />
+                <Printer size={20} />
                 Cetak Rapor
+              </NavLink>
+
+              <div style={{ padding: '1rem', fontSize: '0.75rem', fontWeight: 600, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.05em', marginTop: '0.5rem' }}>
+                Tugas Guru Mapel
+              </div>
+              <NavLink to="/guru/nilai" style={navLinkStyle}>
+                <FileEdit size={20} />
+                Input Nilai Mapel
               </NavLink>
             </>
           )}
@@ -185,7 +206,24 @@ export default function Layout() {
         </nav>
 
         <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', overflow: 'hidden' }}>
+          <NavLink 
+            to="/profil"
+            style={({ isActive }) => ({
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.75rem',
+              marginBottom: '1rem',
+              overflow: 'hidden',
+              padding: '0.5rem',
+              margin: '-0.5rem -0.5rem 0.5rem -0.5rem',
+              borderRadius: 'var(--radius-md)',
+              textDecoration: 'none',
+              color: 'white',
+              backgroundColor: isActive ? 'rgba(255,255,255,0.15)' : 'transparent',
+              transition: 'background-color 0.2s'
+            })}
+            className="profil-hover-link"
+          >
             <div style={{ backgroundColor: 'rgba(255,255,255,0.2)', padding: '0.5rem', borderRadius: '50%', flexShrink: 0 }}>
               <User size={20} />
             </div>
@@ -195,7 +233,7 @@ export default function Layout() {
               </div>
               <div style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>{getRoleLabel()}</div>
             </div>
-          </div>
+          </NavLink>
           
           <button 
             onClick={handleLogout}
@@ -233,9 +271,12 @@ export default function Layout() {
           >
             <Menu size={24} color="var(--text-main)" />
           </button>
-          <h3 style={{ margin: 0, color: 'var(--text-main)', fontSize: '1.125rem' }}>
-            Rapor Digital
-          </h3>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginRight: '1rem' }}>
+            <img src="/logo.jpg" alt="Logo" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />
+            <h3 style={{ margin: 0, color: 'var(--text-main)', fontSize: '1.125rem' }}>
+              SMK Nangkaleah
+            </h3>
+          </div>
         </header>
 
         {/* Desktop Header */}

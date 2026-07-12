@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { CheckCircle, AlertCircle, FileCheck } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function ValidasiRapor() {
   const [kelas, setKelas] = useState([]);
@@ -39,7 +40,6 @@ export default function ValidasiRapor() {
   const fetchRapor = async () => {
     try {
       setLoading(true);
-      // Ambil semua siswa di kelas tersebut
       const { data: siswaData, error: siswaError } = await supabase
         .from('siswa')
         .select('id, nama_lengkap, nis')
@@ -48,7 +48,6 @@ export default function ValidasiRapor() {
 
       if (siswaError) throw siswaError;
 
-      // Ambil rapor wali kelas untuk siswa-siswa tersebut
       const siswaIds = siswaData.map(s => s.id);
       
       let raporMap = {};
@@ -71,7 +70,7 @@ export default function ValidasiRapor() {
         ...s,
         rapor_id: raporMap[s.id]?.id || null,
         is_approved: raporMap[s.id]?.is_approved_by_kepsek || false,
-        has_rapor: !!raporMap[s.id] // Jika true, berarti rapor sudah dikerjakan Wali Kelas
+        has_rapor: !!raporMap[s.id]
       }));
 
       setRaporData(combined);
@@ -95,7 +94,7 @@ export default function ValidasiRapor() {
       fetchRapor();
     } catch (error) {
       console.error('Error approving rapor:', error);
-      alert('Gagal mengubah status approval.');
+      Swal.fire('Error!', 'Gagal mengubah status approval.', 'error');
     } finally {
       setActionLoading(false);
     }
@@ -104,11 +103,22 @@ export default function ValidasiRapor() {
   const handleApproveAll = async () => {
     const unapproved = raporData.filter(r => r.has_rapor && !r.is_approved).map(r => r.rapor_id);
     if (unapproved.length === 0) {
-      alert('Semua rapor yang tersedia sudah di-approve.');
+      Swal.fire('Info', 'Semua rapor yang tersedia sudah di-approve.', 'info');
       return;
     }
 
-    if (!window.confirm(`Yakin ingin menyetujui ${unapproved.length} rapor sekaligus?`)) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: `Yakin ingin menyetujui ${unapproved.length} rapor sekaligus?`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--primary)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, setujui semua!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
 
     try {
       setActionLoading(true);
@@ -119,10 +129,11 @@ export default function ValidasiRapor() {
         .in('id', unapproved);
 
       if (error) throw error;
+      Swal.fire('Berhasil!', 'Semua rapor berhasil disetujui.', 'success');
       fetchRapor();
     } catch (error) {
       console.error('Error approving all:', error);
-      alert('Gagal menyetujui massal.');
+      Swal.fire('Error!', 'Gagal menyetujui massal.', 'error');
     } finally {
       setActionLoading(false);
     }

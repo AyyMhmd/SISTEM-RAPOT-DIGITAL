@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Trash2 } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 export default function JadwalMengajar() {
   const [jadwal, setJadwal] = useState([]);
@@ -78,24 +79,38 @@ export default function JadwalMengajar() {
         throw error;
       }
       setIsModalOpen(false);
+      Swal.fire('Berhasil!', 'Jadwal mengajar berhasil ditambahkan.', 'success');
       fetchData();
     } catch (error) {
       console.error('Error saving jadwal:', error);
-      alert(error.message || 'Gagal menyimpan jadwal');
+      Swal.fire('Error!', error.message || 'Gagal menyimpan jadwal', 'error');
     } finally {
       setSubmitLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Yakin ingin menghapus jadwal mengajar ini?')) return;
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Yakin ingin menghapus jadwal mengajar ini?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--status-error)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, hapus!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       const { error } = await supabase.from('guru_mapel').delete().eq('id', id);
       if (error) throw error;
+      Swal.fire('Terhapus!', 'Jadwal berhasil dihapus.', 'success');
       fetchData();
     } catch (error) {
       console.error('Error deleting jadwal:', error);
-      alert('Gagal menghapus jadwal');
+      Swal.fire('Error!', 'Gagal menghapus jadwal.', 'error');
     }
   };
 

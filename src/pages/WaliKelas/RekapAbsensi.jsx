@@ -46,10 +46,17 @@ export default function RekapAbsensi() {
       const lastDay = new Date(year, month, 0).getDate();
       const endDate = `${bulan}-${lastDay}`;
 
+      const siswaIds = siswaData.map(s => s.id);
+      if (siswaIds.length === 0) {
+        setRekap([]);
+        setLoading(false);
+        return;
+      }
+
       const { data: absensiData, error: absensiError } = await supabase
         .from('absensi')
         .select('siswa_id, status')
-        .eq('kelas_id', kelasData.id)
+        .in('siswa_id', siswaIds)
         .gte('tanggal', startDate)
         .lte('tanggal', endDate);
 
@@ -60,10 +67,10 @@ export default function RekapAbsensi() {
         const absenSiswa = absensiData.filter(a => a.siswa_id === s.id);
         return {
           ...s,
-          hadir: absenSiswa.filter(a => a.status === 'Hadir').length,
-          sakit: absenSiswa.filter(a => a.status === 'Sakit').length,
-          izin: absenSiswa.filter(a => a.status === 'Izin').length,
-          alpa: absenSiswa.filter(a => a.status === 'Alpa').length,
+          hadir: absenSiswa.filter(a => a.status?.toUpperCase() === 'HADIR').length,
+          sakit: absenSiswa.filter(a => a.status?.toUpperCase() === 'SAKIT').length,
+          izin: absenSiswa.filter(a => a.status?.toUpperCase() === 'IZIN').length,
+          alpa: absenSiswa.filter(a => a.status?.toUpperCase() === 'ALPA').length,
         };
       });
 
