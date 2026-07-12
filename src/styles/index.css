@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Colors - Academic Navy Theme */
+  --primary: #1A365D;       /* Deep Navy */
+  --primary-hover: #2A4A7F;
+  --secondary: #E2E8F0;     /* Light Gray for borders/backgrounds */
+  --accent: #D97706;        /* Warm accent (Amber) */
+  
+  --bg-main: #FAFAFA;       /* Slightly warm off-white */
+  --bg-card: #FFFFFF;
+  
+  --text-main: #1F2937;
+  --text-muted: #4B5563;
+  
+  --status-success: #047857; /* Deep Green for Lulus */
+  --status-error: #B91C1C;   /* Deep Red for Remedial */
+
+  /* Typography */
+  --font-heading: 'Merriweather', serif;
+  --font-body: 'Open Sans', sans-serif;
+
+  /* Spacing & Layout */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg-main);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--primary);
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+}
+
+a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
