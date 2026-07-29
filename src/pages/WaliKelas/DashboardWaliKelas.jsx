@@ -6,7 +6,9 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 
 export default function DashboardWaliKelas() {
   const { user } = useAuth();
-  const [kelas, setKelas] = useState(null);
+  const [kelasList, setKelasList] = useState([]);
+  const [kelasActive, setKelasActive] = useState(null);
+  
   const [jumlahSiswa, setJumlahSiswa] = useState(0);
   const [statistik, setStatistik] = useState({ ketidakhadiran: 0, rataRata: 0, remedial: 0 });
   const [loading, setLoading] = useState(true);
@@ -18,128 +20,147 @@ export default function DashboardWaliKelas() {
   const [chartDataAbsensi, setChartDataAbsensi] = useState([]);
   const [chartDataNilai, setChartDataNilai] = useState([]);
 
+  // Fetch daftar kelas saat user login
   useEffect(() => {
-    if (user) fetchKelas();
+    if (user) fetchKelasList();
   }, [user]);
 
-  const fetchKelas = async () => {
+  // Fetch data detail tiap kali kelasActive berubah
+  useEffect(() => {
+    if (kelasActive) {
+      fetchDataForClass(kelasActive.id);
+    }
+  }, [kelasActive]);
+
+  const fetchKelasList = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('kelas')
         .select('*')
         .eq('wali_kelas_id', user.id)
-        .single();
+        .order('nama_kelas');
         
-      if (error && error.code !== 'PGRST116') throw error;
+      if (error) throw error;
       
-      if (data) {
-        setKelas(data);
-        const { data: siswaData, error: siswaError, count } = await supabase
-          .from('siswa')
-          .select('id, nama_lengkap', { count: 'exact' })
-          .eq('kelas_id', data.id);
-          
-        if (siswaError) throw siswaError;
-        setJumlahSiswa(count || 0);
-
-        if (siswaData && siswaData.length > 0) {
-          const siswaIds = siswaData.map(s => s.id);
-          
-          // Fetch Absensi bulan ini
-          const bulan = new Date().toISOString().slice(0, 7);
-          const startDate = `${bulan}-01`;
-          const lastDay = new Date(parseInt(bulan.split('-')[0]), parseInt(bulan.split('-')[1]), 0).getDate();
-          const endDate = `${bulan}-${lastDay}`;
-          
-          const { data: absensiData } = await supabase
-            .from('absensi')
-            .select('siswa_id, status, tanggal')
-            .in('siswa_id', siswaIds)
-            .gte('tanggal', startDate)
-            .lte('tanggal', endDate);
-            
-          let ketidakhadiran = 0;
-          let countSakit = 0, countIzin = 0, countAlpa = 0;
-          const listAbsen = [];
-          if (absensiData) {
-            absensiData.forEach(a => {
-              const status = a.status?.toUpperCase();
-              if (['SAKIT', 'IZIN', 'ALPA'].includes(status)) {
-                ketidakhadiran++;
-                if (status === 'SAKIT') countSakit++;
-                if (status === 'IZIN') countIzin++;
-                if (status === 'ALPA') countAlpa++;
-                const siswaInfo = siswaData.find(s => s.id === a.siswa_id);
-                listAbsen.push({
-                  nama: siswaInfo?.nama_lengkap || 'Unknown',
-                  status: status,
-                  tanggal: a.tanggal
-                });
-              }
-            });
-          }
-          setDaftarAbsen(listAbsen);
-          setChartDataAbsensi([
-            { name: 'Sakit', value: countSakit },
-            { name: 'Izin', value: countIzin },
-            { name: 'Alpa', value: countAlpa }
-          ]);
-
-          // Fetch Nilai (beserta KKM dari tabel mapel)
-          const { data: nilaiData } = await supabase
-            .from('nilai')
-            .select('siswa_id, nilai_tugas, nilai_uts, nilai_uas, mapel:mapel_id(kkm, nama_mapel)')
-            .in('siswa_id', siswaIds);
-            
-          let totalNilai = 0;
-          let countNilai = 0;
-          let remedialCount = 0;
-          
-          let sumTugas = 0, sumUts = 0, sumUas = 0;
-          
-          const listRemedial = [];
-
-          if (nilaiData) {
-            nilaiData.forEach(n => {
-              const rataRata = Math.round((n.nilai_tugas + n.nilai_uts + n.nilai_uas) / 3);
-              totalNilai += rataRata;
-              sumTugas += n.nilai_tugas;
-              sumUts += n.nilai_uts;
-              sumUas += n.nilai_uas;
-              countNilai++;
-              
-              const kkm = n.mapel?.kkm || 75;
-              if (rataRata < kkm) {
-                remedialCount++;
-                const siswaInfo = siswaData.find(s => s.id === n.siswa_id);
-                listRemedial.push({
-                  nama: siswaInfo?.nama_lengkap || 'Unknown',
-                  mapel: n.mapel?.nama_mapel || 'Unknown',
-                  nilai: rataRata,
-                  kkm: kkm
-                });
-              }
-            });
-          }
-          setDaftarRemedial(listRemedial);
-          
-          if (countNilai > 0) {
-            setChartDataNilai([
-              { name: 'Tugas', 'Rata-rata': Math.round(sumTugas / countNilai) },
-              { name: 'UTS', 'Rata-rata': Math.round(sumUts / countNilai) },
-              { name: 'UAS', 'Rata-rata': Math.round(sumUas / countNilai) }
-            ]);
-          }
-
-          setStatistik({
-            ketidakhadiran,
-            rataRata: countNilai > 0 ? Math.round(totalNilai / countNilai) : 0,
-            remedial: remedialCount
-          });
-        }
+      if (data && data.length > 0) {
+        setKelasList(data);
+        setKelasActive(data[0]);
+      } else {
+        setLoading(false);
       }
     } catch (error) {
-      console.error('Error fetching kelas:', error);
+      console.error('Error fetching kelas list:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchDataForClass = async (kelasId) => {
+    try {
+      setLoading(true);
+      const { data: siswaData, error: siswaError, count } = await supabase
+        .from('siswa')
+        .select('id, nama_lengkap', { count: 'exact' })
+        .eq('kelas_id', kelasId);
+        
+      if (siswaError) throw siswaError;
+      setJumlahSiswa(count || 0);
+
+      if (siswaData && siswaData.length > 0) {
+        const siswaIds = siswaData.map(s => s.id);
+        
+        // Fetch Absensi bulan ini
+        const bulan = new Date().toISOString().slice(0, 7);
+        const startDate = `${bulan}-01`;
+        const lastDay = new Date(parseInt(bulan.split('-')[0]), parseInt(bulan.split('-')[1]), 0).getDate();
+        const endDate = `${bulan}-${lastDay}`;
+        
+        const { data: absensiData } = await supabase
+          .from('absensi')
+          .select('siswa_id, status, tanggal')
+          .in('siswa_id', siswaIds)
+          .gte('tanggal', startDate)
+          .lte('tanggal', endDate);
+          
+        let ketidakhadiran = 0;
+        let countSakit = 0, countIzin = 0, countAlpa = 0;
+        const listAbsen = [];
+        if (absensiData) {
+          absensiData.forEach(a => {
+            const status = a.status?.toUpperCase();
+            if (['SAKIT', 'IZIN', 'ALPA'].includes(status)) {
+              ketidakhadiran++;
+              if (status === 'SAKIT') countSakit++;
+              if (status === 'IZIN') countIzin++;
+              if (status === 'ALPA') countAlpa++;
+              const siswaInfo = siswaData.find(s => s.id === a.siswa_id);
+              listAbsen.push({
+                nama: siswaInfo?.nama_lengkap || 'Unknown',
+                status: status,
+                tanggal: a.tanggal
+              });
+            }
+          });
+        }
+        setDaftarAbsen(listAbsen);
+        setChartDataAbsensi([
+          { name: 'Sakit', value: countSakit },
+          { name: 'Izin', value: countIzin },
+          { name: 'Alpa', value: countAlpa }
+        ]);
+
+        // Fetch Nilai
+        const { data: nilaiData } = await supabase
+          .from('nilai')
+          .select('siswa_id, nilai_tugas, nilai_uts, nilai_uas, mapel:mapel_id(kkm, nama_mapel)')
+          .in('siswa_id', siswaIds);
+          
+        let totalNilai = 0;
+        let countNilai = 0;
+        let remedialCount = 0;
+        let sumTugas = 0, sumUts = 0, sumUas = 0;
+        const listRemedial = [];
+
+        if (nilaiData) {
+          nilaiData.forEach(n => {
+            const rataRata = Math.round((n.nilai_tugas + n.nilai_uts + n.nilai_uas) / 3);
+            totalNilai += rataRata;
+            sumTugas += n.nilai_tugas;
+            sumUts += n.nilai_uts;
+            sumUas += n.nilai_uas;
+            countNilai++;
+            
+            const kkm = n.mapel?.kkm || 75;
+            if (rataRata < kkm) {
+              remedialCount++;
+              const siswaInfo = siswaData.find(s => s.id === n.siswa_id);
+              listRemedial.push({
+                nama: siswaInfo?.nama_lengkap || 'Unknown',
+                mapel: n.mapel?.nama_mapel || 'Unknown',
+                nilai: rataRata,
+                kkm: kkm
+              });
+            }
+          });
+        }
+        setDaftarRemedial(listRemedial);
+        
+        if (countNilai > 0) {
+          setChartDataNilai([
+            { name: 'Tugas', 'Rata-rata': Math.round(sumTugas / countNilai) },
+            { name: 'UTS', 'Rata-rata': Math.round(sumUts / countNilai) },
+            { name: 'UAS', 'Rata-rata': Math.round(sumUas / countNilai) }
+          ]);
+        }
+
+        setStatistik({
+          ketidakhadiran,
+          rataRata: countNilai > 0 ? Math.round(totalNilai / countNilai) : 0,
+          remedial: remedialCount
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
     } finally {
       setLoading(false);
     }
@@ -147,11 +168,37 @@ export default function DashboardWaliKelas() {
 
   return (
     <div>
-      <h1 style={{ marginBottom: '1rem', fontSize: '1.5rem' }}>Selamat Datang, Wali Kelas!</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h1 style={{ margin: 0, fontSize: '1.5rem' }}>Selamat Datang, Wali Kelas!</h1>
+        {kelasList.length > 1 && (
+          <select 
+            value={kelasActive?.id || ''}
+            onChange={(e) => {
+              const selected = kelasList.find(k => k.id === e.target.value);
+              setKelasActive(selected);
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--primary)',
+              backgroundColor: 'rgba(79, 121, 66, 0.1)',
+              color: 'var(--primary)',
+              fontWeight: 600,
+              fontSize: '1rem',
+              cursor: 'pointer',
+              outline: 'none'
+            }}
+          >
+            {kelasList.map(k => (
+              <option key={k.id} value={k.id}>Kelas {k.nama_kelas}</option>
+            ))}
+          </select>
+        )}
+      </div>
       
       {loading ? (
         <p>Memuat data kelas...</p>
-      ) : !kelas ? (
+      ) : !kelasActive ? (
         <div style={{ padding: '2rem', backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-md)', border: '1px solid var(--status-error)', textAlign: 'center', color: 'var(--status-error)' }}>
           Anda belum ditugaskan sebagai Wali Kelas di kelas mana pun. Silakan hubungi Tata Usaha.
         </div>
@@ -165,10 +212,10 @@ export default function DashboardWaliKelas() {
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--primary)' }}>
                 <UsersRound size={28} />
-                <h2 style={{ margin: 0 }}>Kelas {kelas.nama_kelas}</h2>
+                <h2 style={{ margin: 0 }}>Kelas {kelasActive.nama_kelas}</h2>
               </div>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Tingkat: {kelas.tingkat}</p>
-              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Tahun Ajaran: {kelas.tahun_ajaran}</p>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '0.5rem' }}>Tingkat: {kelasActive.tingkat}</p>
+              <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Tahun Ajaran: {kelasActive.tahun_ajaran}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--secondary)' }}>
                 <span style={{ fontWeight: 600 }}>Total Siswa</span>
                 <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>{jumlahSiswa}</span>

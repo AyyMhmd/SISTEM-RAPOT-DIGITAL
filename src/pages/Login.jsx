@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { Lock, User } from 'lucide-react';
+import { Lock, User, Eye, EyeOff } from 'lucide-react';
 
 export default function Login() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const { login } = useAuth();
@@ -42,23 +43,26 @@ export default function Login() {
       backgroundColor: 'var(--bg-main)',
       padding: '1rem'
     }}>
-      <div style={{
-        width: '100%',
-        maxWidth: '400px',
-        backgroundColor: 'var(--bg-card)',
-        borderRadius: 'var(--radius-lg)',
-        border: '1px solid var(--secondary)',
-        padding: '2.5rem 2rem',
-      }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+      <div 
+        className="hover-card"
+        style={{
+          width: '100%',
+          maxWidth: '420px',
+          backgroundColor: 'var(--bg-card)',
+          borderRadius: 'var(--radius-lg)',
+          border: '1px solid var(--secondary)',
+          boxShadow: 'var(--shadow-lg)',
+          padding: '3rem 2.5rem',
+        }}>
+        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
             <img 
               src="/logo.jpg" 
               alt="Logo Sekolah" 
-              style={{ width: '80px', height: '80px', objectFit: 'contain', borderRadius: '50%' }} 
+              style={{ width: '90px', height: '90px', objectFit: 'contain', borderRadius: '50%', boxShadow: 'var(--shadow-md)' }} 
             />
           </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Sistem Rapor Digital</h1>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--primary)' }}>Sistem Rapor Digital</h1>
           <p style={{ color: 'var(--text-muted)' }}>Silakan masuk ke akun Anda</p>
         </div>
 
@@ -94,11 +98,7 @@ export default function Login() {
                 placeholder="Masukkan NISN atau NUPTK"
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1rem 0.75rem 2.75rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--secondary)',
-                  fontFamily: 'inherit',
-                  fontSize: '1rem'
+                  paddingLeft: '2.75rem'
                 }}
               />
             </div>
@@ -114,20 +114,37 @@ export default function Login() {
               </div>
               <input
                 id="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="••••••••"
                 style={{
                   width: '100%',
-                  padding: '0.75rem 1rem 0.75rem 2.75rem',
-                  borderRadius: 'var(--radius-sm)',
-                  border: '1px solid var(--secondary)',
-                  fontFamily: 'inherit',
-                  fontSize: '1rem'
+                  paddingLeft: '2.75rem',
+                  paddingRight: '3rem'
                 }}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  top: '50%',
+                  right: '0.5rem',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  padding: '0.5rem',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
@@ -135,23 +152,34 @@ export default function Login() {
             type="submit"
             disabled={loading}
             style={{
-              marginTop: '0.5rem',
+              marginTop: '1rem',
               width: '100%',
               padding: '0.875rem',
               backgroundColor: 'var(--primary)',
               color: 'white',
               border: 'none',
-              borderRadius: 'var(--radius-sm)',
+              borderRadius: 'var(--radius-md)',
               fontSize: '1rem',
               fontWeight: 600,
               cursor: loading ? 'not-allowed' : 'pointer',
               opacity: loading ? 0.7 : 1,
-              transition: 'background-color 0.2s'
+              transition: 'all 0.2s',
+              boxShadow: 'var(--shadow-sm)'
             }}
-            onMouseOver={(e) => { if (!loading) e.target.style.backgroundColor = 'var(--primary-hover)' }}
-            onMouseOut={(e) => { if (!loading) e.target.style.backgroundColor = 'var(--primary)' }}
+            onMouseOver={(e) => { 
+              if (!loading) {
+                e.target.style.backgroundColor = 'var(--primary-hover)';
+                e.target.style.transform = 'translateY(-1px)';
+              }
+            }}
+            onMouseOut={(e) => { 
+              if (!loading) {
+                e.target.style.backgroundColor = 'var(--primary)';
+                e.target.style.transform = 'translateY(0)';
+              }
+            }}
           >
-            {loading ? 'Masuk...' : 'Masuk'}
+            {loading ? 'Masuk...' : 'Masuk ke Dasbor'}
           </button>
         </form>
       </div>

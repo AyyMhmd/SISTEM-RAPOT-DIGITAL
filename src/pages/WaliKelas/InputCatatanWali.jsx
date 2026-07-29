@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 
 export default function InputCatatanWali() {
   const { user } = useAuth();
-  const [kelas, setKelas] = useState(null);
+  const [kelasList, setKelasList] = useState([]);
+  const [kelasActive, setKelasActive] = useState(null);
   const [siswaData, setSiswaData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -15,29 +16,46 @@ export default function InputCatatanWali() {
   const [tahunAjaran, setTahunAjaran] = useState('2023/2024');
 
   useEffect(() => {
-    if (user) fetchKelasDanSiswa();
-  }, [user, selectedSemester]);
+    if (user) fetchKelasList();
+  }, [user]);
 
-  const fetchKelasDanSiswa = async () => {
+  useEffect(() => {
+    if (kelasActive) {
+      fetchSiswaData(kelasActive.id);
+    }
+  }, [kelasActive, selectedSemester, tahunAjaran]);
+
+  const fetchKelasList = async () => {
     setLoading(true);
     try {
-      // 1. Dapatkan kelas perwalian
-      const { data: kelasData, error: kelasError } = await supabase
+      const { data, error } = await supabase
         .from('kelas')
         .select('*')
         .eq('wali_kelas_id', user.id)
-        .single();
+        .order('nama_kelas');
         
-      if (kelasError && kelasError.code !== 'PGRST116') throw kelasError;
+      if (error) throw error;
       
-      if (kelasData) {
-        setKelas(kelasData);
-        
-        // 2. Dapatkan siswa di kelas tersebut
-        const { data: siswa, error: siswaError } = await supabase
+      if (data && data.length > 0) {
+        setKelasList(data);
+        setKelasActive(data[0]);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching kelas list:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchSiswaData = async (kelasId) => {
+    setLoading(true);
+    try {
+      // 2. Dapatkan siswa di kelas tersebut
+      const { data: siswa, error: siswaError } = await supabase
           .from('siswa')
           .select('id, nis, nama_lengkap')
-          .eq('kelas_id', kelasData.id)
+          .eq('kelas_id', kelasId)
           .order('nama_lengkap');
           
         if (siswaError) throw siswaError;
@@ -46,7 +64,7 @@ export default function InputCatatanWali() {
         const { data: rapor, error: raporError } = await supabase
           .from('rapor_wali_kelas')
           .select('*')
-          .eq('kelas_id', kelasData.id)
+          .eq('kelas_id', kelasId)
           .eq('semester', selectedSemester)
           .eq('tahun_ajaran', tahunAjaran)
           .in('siswa_id', siswa.map(s => s.id));
@@ -72,8 +90,7 @@ export default function InputCatatanWali() {
           };
         });
 
-        setSiswaData(gabungan);
-      }
+      setSiswaData(gabungan);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -90,7 +107,7 @@ export default function InputCatatanWali() {
     try {
       const payload = siswaData.map(item => ({
         siswa_id: item.siswa_id,
-        kelas_id: kelas.id,
+        kelas_id: kelasActive.id,
         semester: selectedSemester,
         tahun_ajaran: tahunAjaran,
         sikap_spiritual: item.sikap_spiritual,
@@ -118,13 +135,37 @@ export default function InputCatatanWali() {
     }
   };
 
-  if (!kelas && !loading) {
+  if (!kelasActive && !loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Anda bukan wali kelas aktif.</div>;
   }
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Input Catatan Wali Kelas & Ekstrakurikuler</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Input Catatan Wali Kelas & Ekstrakurikuler</h1>
+        
+        {kelasList.length > 1 && (
+          <select 
+            value={kelasActive?.id || ''}
+            onChange={(e) => {
+              const selected = kelasList.find(k => k.id === e.target.value);
+              setKelasActive(selected);
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--secondary)',
+              backgroundColor: 'var(--bg-card)',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {kelasList.map(k => (
+              <option key={k.id} value={k.id}>Kelas {k.nama_kelas}</option>
+            ))}
+          </select>
+        )}
+      </div>
 
       <div style={{ 
         display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-card)', 
@@ -135,7 +176,7 @@ export default function InputCatatanWali() {
         <div style={{ flex: '1' }}>
           <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Kelas Perwalian</label>
           <div style={{ padding: '0.75rem', backgroundColor: 'var(--bg-main)', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}>
-            {kelas?.nama_kelas || 'Memuat...'}
+            {kelasActive?.nama_kelas || 'Memuat...'}
           </div>
         </div>
         

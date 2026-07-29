@@ -6,7 +6,8 @@ import { Download } from 'lucide-react';
 
 export default function RekapAbsensi() {
   const { user } = useAuth();
-  const [kelas, setKelas] = useState(null);
+  const [kelasList, setKelasList] = useState([]);
+  const [kelasActive, setKelasActive] = useState(null);
   const [rekap, setRekap] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -14,31 +15,47 @@ export default function RekapAbsensi() {
   const [bulan, setBulan] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
 
   useEffect(() => {
-    if (user) fetchRekap();
-  }, [user, bulan]);
+    if (user) fetchKelasList();
+  }, [user]);
 
-  const fetchRekap = async () => {
-    setLoading(true);
+  useEffect(() => {
+    if (kelasActive) {
+      fetchRekap(kelasActive.id);
+    }
+  }, [kelasActive, bulan]);
+
+  const fetchKelasList = async () => {
     try {
-      // 1. Dapatkan kelas perwalian
-      const { data: kelasData, error: kelasError } = await supabase
+      setLoading(true);
+      const { data, error } = await supabase
         .from('kelas')
         .select('id, nama_kelas')
         .eq('wali_kelas_id', user.id)
-        .single();
+        .order('nama_kelas');
         
-      if (kelasError && kelasError.code !== 'PGRST116') throw kelasError;
-      if (!kelasData) return;
+      if (error) throw error;
       
-      setKelas(kelasData);
-      
+      if (data && data.length > 0) {
+        setKelasList(data);
+        setKelasActive(data[0]);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching kelas list:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchRekap = async (kelasId) => {
+    setLoading(true);
+    try {
       // 2. Dapatkan siswa
       const { data: siswaData, error: siswaError } = await supabase
         .from('siswa')
         .select('id, nis, nama_lengkap')
-        .eq('kelas_id', kelasData.id)
+        .eq('kelas_id', kelasId)
         .order('nama_lengkap');
-        
       if (siswaError) throw siswaError;
 
       // 3. Dapatkan absensi di bulan yang dipilih
@@ -113,41 +130,56 @@ export default function RekapAbsensi() {
     ];
     worksheet['!cols'] = wscols;
 
-    XLSX.writeFile(workbook, `Rekap_Absensi_Kelas_${kelas?.nama_kelas}_${bulan}.xlsx`);
+    XLSX.writeFile(workbook, `Rekap_Absensi_Kelas_${kelasActive?.nama_kelas}_${bulan}.xlsx`);
   };
 
-  if (!kelas && !loading) {
+  if (!kelasActive && !loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Anda bukan wali kelas aktif.</div>;
   }
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Rekapitulasi Absensi Kelas {kelas?.nama_kelas}</h1>
-
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
-          <label style={{ marginRight: '1rem', fontWeight: 600 }}>Pilih Bulan:</label>
+          <h1 style={{ marginBottom: '0.5rem', fontSize: '1.5rem' }}>Rekap Absensi Bulanan</h1>
+          {kelasActive && <p style={{ color: 'var(--text-muted)', margin: 0 }}>Kelas {kelasActive.nama_kelas}</p>}
+        </div>
+        
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+          {kelasList.length > 1 && (
+            <select 
+              value={kelasActive?.id || ''}
+              onChange={(e) => {
+                const selected = kelasList.find(k => k.id === e.target.value);
+                setKelasActive(selected);
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--secondary)',
+                backgroundColor: 'var(--bg-card)',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {kelasList.map(k => (
+                <option key={k.id} value={k.id}>Kelas {k.nama_kelas}</option>
+              ))}
+            </select>
+          )}
+
           <input 
             type="month" 
             value={bulan}
             onChange={(e) => setBulan(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--secondary)' }}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--secondary)',
+              backgroundColor: 'var(--bg-card)'
+            }}
           />
         </div>
-        
-        <button 
-          onClick={handleExportExcel}
-          disabled={loading || rekap.length === 0}
-          style={{
-            display: 'flex', alignItems: 'center', gap: '0.5rem',
-            padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)',
-            backgroundColor: '#10B981', color: 'white', border: 'none',
-            cursor: (loading || rekap.length === 0) ? 'not-allowed' : 'pointer',
-            fontWeight: 600, opacity: (loading || rekap.length === 0) ? 0.6 : 1
-          }}
-        >
-          <Download size={18} /> Export Excel
-        </button>
       </div>
 
       <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', overflowX: 'auto' }}>

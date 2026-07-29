@@ -4,7 +4,8 @@ import { useAuth } from '../../contexts/AuthContext';
 
 export default function LegerNilai() {
   const { user } = useAuth();
-  const [kelas, setKelas] = useState(null);
+  const [kelasList, setKelasList] = useState([]);
+  const [kelasActive, setKelasActive] = useState(null);
   const [siswa, setSiswa] = useState([]);
   const [mapelList, setMapelList] = useState([]);
   const [nilai, setNilai] = useState([]);
@@ -14,29 +15,46 @@ export default function LegerNilai() {
   const [tahunAjaran, setTahunAjaran] = useState('2023/2024');
 
   useEffect(() => {
-    if (user) fetchData();
-  }, [user, selectedSemester]);
+    if (user) fetchKelasList();
+  }, [user]);
 
-  const fetchData = async () => {
+  useEffect(() => {
+    if (kelasActive) {
+      fetchDataForClass(kelasActive.id);
+    }
+  }, [kelasActive, selectedSemester, tahunAjaran]);
+
+  const fetchKelasList = async () => {
     setLoading(true);
     try {
-      // 1. Dapatkan kelas perwalian
-      const { data: kelasData, error: kelasError } = await supabase
+      const { data, error } = await supabase
         .from('kelas')
         .select('*')
         .eq('wali_kelas_id', user.id)
-        .single();
+        .order('nama_kelas');
         
-      if (kelasError && kelasError.code !== 'PGRST116') throw kelasError;
-      if (!kelasData) return;
+      if (error) throw error;
       
-      setKelas(kelasData);
-      
+      if (data && data.length > 0) {
+        setKelasList(data);
+        setKelasActive(data[0]);
+      } else {
+        setLoading(false);
+      }
+    } catch (error) {
+      console.error('Error fetching kelas list:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchDataForClass = async (kelasId) => {
+    setLoading(true);
+    try {
       // 2. Dapatkan siswa
       const { data: siswaData, error: siswaError } = await supabase
         .from('siswa')
         .select('id, nis, nama_lengkap')
-        .eq('kelas_id', kelasData.id)
+        .eq('kelas_id', kelasId)
         .order('nama_lengkap');
         
       if (siswaError) throw siswaError;
@@ -46,7 +64,7 @@ export default function LegerNilai() {
       const { data: jadwalData, error: jadwalError } = await supabase
         .from('guru_mapel')
         .select('mapel_id, mapel:mapel_id(nama_mapel)')
-        .eq('kelas_id', kelasData.id);
+        .eq('kelas_id', kelasId);
         
       if (jadwalError) throw jadwalError;
 
@@ -65,7 +83,7 @@ export default function LegerNilai() {
       const { data: nilaiData, error: nilaiError } = await supabase
         .from('nilai')
         .select('*')
-        .eq('kelas_id', kelasData.id)
+        .eq('kelas_id', kelasId)
         .eq('semester', selectedSemester)
         .eq('tahun_ajaran', tahunAjaran);
         
@@ -98,13 +116,40 @@ export default function LegerNilai() {
     return { total, avg: count > 0 ? Math.round(total / count) : '-' };
   };
 
-  if (!kelas && !loading) {
+  if (!kelasActive && !loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Anda bukan wali kelas aktif.</div>;
   }
 
   return (
     <div>
-      <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Pantau Nilai (Leger Kelas)</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Pantau Nilai (Leger Kelas)</h1>
+          {kelasActive && <p style={{ color: 'var(--text-muted)', margin: 0 }}>Kelas {kelasActive.nama_kelas}</p>}
+        </div>
+        
+        {kelasList.length > 1 && (
+          <select 
+            value={kelasActive?.id || ''}
+            onChange={(e) => {
+              const selected = kelasList.find(k => k.id === e.target.value);
+              setKelasActive(selected);
+            }}
+            style={{
+              padding: '0.5rem 1rem',
+              borderRadius: 'var(--radius-md)',
+              border: '1px solid var(--secondary)',
+              backgroundColor: 'var(--bg-card)',
+              outline: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            {kelasList.map(k => (
+              <option key={k.id} value={k.id}>Kelas {k.nama_kelas}</option>
+            ))}
+          </select>
+        )}
+      </div>
 
       <div style={{ 
         display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-card)', 

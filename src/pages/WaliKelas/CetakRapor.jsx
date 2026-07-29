@@ -6,7 +6,8 @@ import Swal from 'sweetalert2';
 
 export default function CetakRapor() {
   const { user } = useAuth();
-  const [kelas, setKelas] = useState(null);
+  const [kelasList, setKelasList] = useState([]);
+  const [kelasActive, setKelasActive] = useState(null);
   const [siswaData, setSiswaData] = useState([]);
   const [loading, setLoading] = useState(true);
   
@@ -19,8 +20,12 @@ export default function CetakRapor() {
   const [raporLoading, setRaporLoading] = useState(false);
 
   useEffect(() => {
-    if (user) fetchKelasDanSiswa();
+    if (user) fetchKelasList();
   }, [user]);
+
+  useEffect(() => {
+    if (kelasActive) fetchSiswaForClass(kelasActive.id);
+  }, [kelasActive]);
 
   useEffect(() => {
     if (selectedSiswaId && selectedSemester) {
@@ -30,31 +35,42 @@ export default function CetakRapor() {
     }
   }, [selectedSiswaId, selectedSemester]);
 
-  const fetchKelasDanSiswa = async () => {
+  const fetchKelasList = async () => {
     setLoading(true);
     try {
-      const { data: kelasData, error: kelasError } = await supabase
+      const { data, error } = await supabase
         .from('kelas')
         .select('*, users:wali_kelas_id(nama_lengkap)')
         .eq('wali_kelas_id', user.id)
-        .single();
+        .order('nama_kelas');
         
-      if (kelasError && kelasError.code !== 'PGRST116') throw kelasError;
+      if (error) throw error;
       
-      if (kelasData) {
-        setKelas(kelasData);
-        
-        const { data: siswa, error: siswaError } = await supabase
-          .from('siswa')
-          .select('id, nis, nisn, nama_lengkap, no_hp_ortu')
-          .eq('kelas_id', kelasData.id)
-          .order('nama_lengkap');
-          
-        if (siswaError) throw siswaError;
-        setSiswaData(siswa);
+      if (data && data.length > 0) {
+        setKelasList(data);
+        setKelasActive(data[0]);
+      } else {
+        setLoading(false);
       }
     } catch (error) {
       console.error('Error fetching data:', error);
+      setLoading(false);
+    }
+  };
+
+  const fetchSiswaForClass = async (kelasId) => {
+    setLoading(true);
+    try {
+      const { data: siswa, error: siswaError } = await supabase
+        .from('siswa')
+        .select('id, nis, nisn, nama_lengkap, no_hp_ortu')
+        .eq('kelas_id', kelasId)
+        .order('nama_lengkap');
+        
+      if (siswaError) throw siswaError;
+      setSiswaData(siswa);
+    } catch (error) {
+      console.error('Error fetching siswa:', error);
     } finally {
       setLoading(false);
     }
@@ -155,14 +171,42 @@ export default function CetakRapor() {
     window.open(`https://wa.me/${phone}?text=${encodedText}`, '_blank');
   };
 
-  if (!kelas && !loading) {
+  if (!kelasActive && !loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Anda bukan wali kelas aktif.</div>;
   }
 
   return (
     <div>
       <div className="no-print">
-        <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Cetak Rapor Siswa</h1>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Cetak Rapor Siswa</h1>
+            {kelasActive && <p style={{ color: 'var(--text-muted)', margin: 0 }}>Kelas {kelasActive.nama_kelas}</p>}
+          </div>
+
+          {kelasList.length > 1 && (
+            <select 
+              value={kelasActive?.id || ''}
+              onChange={(e) => {
+                const selected = kelasList.find(k => k.id === e.target.value);
+                setKelasActive(selected);
+                setSelectedSiswaId(''); // Reset siswa ketika kelas berubah
+              }}
+              style={{
+                padding: '0.5rem 1rem',
+                borderRadius: 'var(--radius-md)',
+                border: '1px solid var(--secondary)',
+                backgroundColor: 'var(--bg-card)',
+                outline: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {kelasList.map(k => (
+                <option key={k.id} value={k.id}>Kelas {k.nama_kelas}</option>
+              ))}
+            </select>
+          )}
+        </div>
 
         <div style={{ 
           display: 'flex', gap: '1rem', backgroundColor: 'var(--bg-card)', 
@@ -203,7 +247,7 @@ export default function CetakRapor() {
       ) : raporData ? (
         <RaporComponent 
           siswa={raporData.siswa}
-          kelas={kelas}
+          kelas={kelasActive}
           tahunAjaran={tahunAjaran}
           semester={selectedSemester}
           nilai={raporData.nilai}

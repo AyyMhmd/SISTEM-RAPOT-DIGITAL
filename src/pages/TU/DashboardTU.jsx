@@ -83,7 +83,7 @@ export default function DashboardTU() {
     borderRadius: '50%'
   };
   
-  const COLORS = ['#4F7942', '#D97706', '#1F2937', '#B91C1C', '#047857'];
+  const COLORS = ['#F13E93', '#D97706', '#162E93', '#B91C1C', '#047857'];
 
   return (
     <div>

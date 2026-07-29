@@ -315,7 +315,7 @@ export default function Layout() {
 
         {/* Desktop Header */}
         <header className="desktop-header no-print" style={{ 
-          backgroundColor: 'white', 
+          backgroundColor: 'var(--bg-card)', 
           padding: '1.25rem 2rem', 
           borderBottom: '1px solid var(--secondary)',
           display: 'flex',
