@@ -52,145 +52,155 @@ export default function RaporComponent({
         <h3 style={{ margin: '0.5rem 0 0 0' }}>(RAPOR)</h3>
       </div>
 
-      <table style={{ width: '100%', marginBottom: '2rem', fontSize: '0.875rem' }}>
-        <tbody>
-          <tr>
-            <td style={{ width: '150px', padding: '0.25rem 0' }}>Nama Peserta Didik</td>
-            <td style={{ width: '10px' }}>:</td>
-            <td style={{ fontWeight: 'bold' }}>{siswa?.nama_lengkap}</td>
+      <div style={{ overflowX: 'auto', marginBottom: '2rem' }}>
+        <table style={{ width: '100%', fontSize: '0.875rem', minWidth: '400px' }}>
+          <tbody>
+            <tr>
+              <td style={{ width: '150px', padding: '0.25rem 0' }}>Nama Peserta Didik</td>
+              <td style={{ width: '10px' }}>:</td>
+              <td style={{ fontWeight: 'bold' }}>{siswa?.nama_lengkap}</td>
 
-            <td style={{ width: '100px' }}>Kelas</td>
-            <td style={{ width: '10px' }}>:</td>
-            <td>{kelas?.nama_kelas}</td>
-          </tr>
-          <tr>
-            <td style={{ padding: '0.25rem 0' }}>NISN / NIS</td>
-            <td>:</td>
-            <td>{siswa?.nisn || '-'} / {siswa?.nis || '-'}</td>
+              <td style={{ width: '100px' }}>Kelas</td>
+              <td style={{ width: '10px' }}>:</td>
+              <td>{kelas?.nama_kelas}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '0.25rem 0' }}>NISN / NIS</td>
+              <td>:</td>
+              <td>{siswa?.nisn || '-'} / {siswa?.nis || '-'}</td>
 
-            <td>Semester</td>
-            <td>:</td>
-            <td>{semester}</td>
-          </tr>
-          <tr>
-            <td style={{ padding: '0.25rem 0' }}>Sekolah</td>
-            <td>:</td>
-            <td>SMK NANGKALEAH</td>
+              <td>Semester</td>
+              <td>:</td>
+              <td>{semester}</td>
+            </tr>
+            <tr>
+              <td style={{ padding: '0.25rem 0' }}>Sekolah</td>
+              <td>:</td>
+              <td>SMK NANGKALEAH</td>
 
-            <td>Tahun Ajaran</td>
-            <td>:</td>
-            <td>{tahunAjaran}</td>
-          </tr>
-        </tbody>
-      </table>
+              <td>Tahun Ajaran</td>
+              <td>:</td>
+              <td>{tahunAjaran}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       {/* Sikap */}
       <h4 style={{ marginBottom: '0.5rem' }}>A. Sikap</h4>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-        <tbody>
-          <tr>
-            <td style={{ border: '1px solid black', padding: '0.5rem', width: '30%', fontWeight: 'bold' }}>Sikap Spiritual</td>
-            <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.sikap_spiritual || '-'}</td>
-          </tr>
-          <tr>
-            <td style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold' }}>Sikap Sosial</td>
-            <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.sikap_sosial || '-'}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', minWidth: '500px' }}>
+          <tbody>
+            <tr>
+              <td style={{ border: '1px solid black', padding: '0.5rem', width: '30%', fontWeight: 'bold' }}>Sikap Spiritual</td>
+              <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.sikap_spiritual || '-'}</td>
+            </tr>
+            <tr>
+              <td style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold' }}>Sikap Sosial</td>
+              <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.sikap_sosial || '-'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       {/* Nilai Pengetahuan & Keterampilan */}
       <h4 style={{ marginBottom: '0.5rem' }}>B. Pengetahuan dan Keterampilan</h4>
-      <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-        <thead style={{ backgroundColor: '#f3f4f6' }}>
-          <tr>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '5%' }}>No</th>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '30%' }}>Mata Pelajaran</th>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>KKM</th>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>Nilai</th>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>Predikat</th>
-            <th style={{ border: '1px solid black', padding: '0.5rem', width: '35%' }}>Deskripsi</th>
-          </tr>
-        </thead>
-        <tbody>
-          {mapelA.length > 0 && (
-            <>
-              <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok A (Nasional)</td></tr>
-              {mapelA.map((m, i) => renderRowNilai(m, i))}
-            </>
-          )}
-          {mapelB.length > 0 && (
-            <>
-              <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok B (Kewilayahan)</td></tr>
-              {mapelB.map((m, i) => renderRowNilai(m, i))}
-            </>
-          )}
-          {mapelC.length > 0 && (
-            <>
-              <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok C (Kejuruan)</td></tr>
-              {mapelC.map((m, i) => renderRowNilai(m, i))}
-            </>
-          )}
-          {mapelLokal.length > 0 && (
-            <>
-              <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Muatan Lokal</td></tr>
-              {mapelLokal.map((m, i) => renderRowNilai(m, i))}
-            </>
-          )}
-        </tbody>
-      </table>
+      <div style={{ overflowX: 'auto' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', minWidth: '600px' }}>
+          <thead style={{ backgroundColor: '#f3f4f6' }}>
+            <tr>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '5%' }}>No</th>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '30%' }}>Mata Pelajaran</th>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>KKM</th>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>Nilai</th>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>Predikat</th>
+              <th style={{ border: '1px solid black', padding: '0.5rem', width: '35%' }}>Deskripsi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {mapelA.length > 0 && (
+              <>
+                <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok A (Nasional)</td></tr>
+                {mapelA.map((m, i) => renderRowNilai(m, i))}
+              </>
+            )}
+            {mapelB.length > 0 && (
+              <>
+                <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok B (Kewilayahan)</td></tr>
+                {mapelB.map((m, i) => renderRowNilai(m, i))}
+              </>
+            )}
+            {mapelC.length > 0 && (
+              <>
+                <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Kelompok C (Kejuruan)</td></tr>
+                {mapelC.map((m, i) => renderRowNilai(m, i))}
+              </>
+            )}
+            {mapelLokal.length > 0 && (
+              <>
+                <tr><td colSpan="6" style={{ border: '1px solid black', padding: '0.5rem', fontWeight: 'bold', backgroundColor: '#f9fafb' }}>Muatan Lokal</td></tr>
+                {mapelLokal.map((m, i) => renderRowNilai(m, i))}
+              </>
+            )}
+          </tbody>
+        </table>
+      </div>
 
-      <div style={{ display: 'flex', gap: '2rem' }}>
+      <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
         {/* Ekstrakurikuler */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: '1 1 300px' }}>
           <h4 style={{ marginBottom: '0.5rem' }}>C. Ekstrakurikuler</h4>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-            <thead style={{ backgroundColor: '#f3f4f6' }}>
-              <tr>
-                <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>No</th>
-                <th style={{ border: '1px solid black', padding: '0.5rem', width: '70%' }}>Kegiatan Ekstrakurikuler</th>
-                <th style={{ border: '1px solid black', padding: '0.5rem', width: '20%' }}>Nilai</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>1</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_1_nama || '-'}</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_1_nilai || '-'}</td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>2</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_2_nama || '-'}</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_2_nilai || '-'}</td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>3</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_3_nama || '-'}</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_3_nilai || '-'}</td>
-              </tr>
-            </tbody>
-          </table>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', minWidth: '350px' }}>
+              <thead style={{ backgroundColor: '#f3f4f6' }}>
+                <tr>
+                  <th style={{ border: '1px solid black', padding: '0.5rem', width: '10%' }}>No</th>
+                  <th style={{ border: '1px solid black', padding: '0.5rem', width: '70%' }}>Kegiatan Ekstrakurikuler</th>
+                  <th style={{ border: '1px solid black', padding: '0.5rem', width: '20%' }}>Nilai</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>1</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_1_nama || '-'}</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_1_nilai || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>2</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_2_nama || '-'}</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_2_nilai || '-'}</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>3</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem' }}>{raporWali?.ekskul_3_nama || '-'}</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{raporWali?.ekskul_3_nilai || '-'}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
 
         {/* Ketidakhadiran */}
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: '1 1 300px' }}>
           <h4 style={{ marginBottom: '0.5rem' }}>D. Ketidakhadiran</h4>
-          <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem' }}>
-            <tbody>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem', width: '70%' }}>Sakit</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', width: '30%', textAlign: 'center' }}>{absensi?.sakit || 0} hari</td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem' }}>Izin</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{absensi?.izin || 0} hari</td>
-              </tr>
-              <tr>
-                <td style={{ border: '1px solid black', padding: '0.5rem' }}>Tanpa Keterangan (Alpa)</td>
-                <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{absensi?.alpa || 0} hari</td>
-              </tr>
-            </tbody>
-          </table>
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: '2rem', minWidth: '250px' }}>
+              <tbody>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', width: '70%' }}>Sakit</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', width: '30%', textAlign: 'center' }}>{absensi?.sakit || 0} hari</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem' }}>Izin</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{absensi?.izin || 0} hari</td>
+                </tr>
+                <tr>
+                  <td style={{ border: '1px solid black', padding: '0.5rem' }}>Tanpa Keterangan (Alpa)</td>
+                  <td style={{ border: '1px solid black', padding: '0.5rem', textAlign: 'center' }}>{absensi?.alpa || 0} hari</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 

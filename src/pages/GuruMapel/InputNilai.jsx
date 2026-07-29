@@ -31,10 +31,8 @@ export default function InputNilai() {
         .from('guru_mapel')
         .select(`
           id,
-          mapel_id,
-          kelas_id,
-          mapel:mapel_id(nama_mapel, kkm),
-          kelas:kelas_id(nama_kelas)
+          mapel:mapel_id(id, nama_mapel, kkm),
+          kelas:kelas_id(id, nama_kelas)
         `)
         .eq('guru_id', user.id);
 
@@ -56,22 +54,26 @@ export default function InputNilai() {
       const { data: siswaData, error: siswaError } = await supabase
         .from('siswa')
         .select('id, nis, nama_lengkap')
-        .eq('kelas_id', jadwalAktif.kelas_id)
+        .eq('kelas_id', jadwalAktif.kelas?.id)
         .order('nama_lengkap');
       
       if (siswaError) throw siswaError;
 
       // 2. Ambil nilai yang sudah ada untuk mapel, kelas, dan semester tersebut
-      const { data: nilaiData, error: nilaiError } = await supabase
-        .from('nilai')
-        .select('*')
-        .eq('mapel_id', jadwalAktif.mapel_id)
-        .eq('kelas_id', jadwalAktif.kelas_id)
-        .eq('semester', selectedSemester)
-        .eq('tahun_ajaran', tahunAjaran)
-        .in('siswa_id', siswaData.map(s => s.id));
-      
-      if (nilaiError) throw nilaiError;
+      let nilaiData = [];
+      if (siswaData.length > 0) {
+        const { data: nData, error: nError } = await supabase
+          .from('nilai')
+          .select('*')
+          .eq('mapel_id', jadwalAktif.mapel?.id)
+          .eq('kelas_id', jadwalAktif.kelas?.id)
+          .eq('semester', selectedSemester)
+          .eq('tahun_ajaran', tahunAjaran)
+          .in('siswa_id', siswaData.map(s => s.id));
+        
+        if (nError) throw nError;
+        nilaiData = nData;
+      }
 
       // 3. Gabungkan
       const gabungan = siswaData.map(s => {
@@ -125,8 +127,8 @@ export default function InputNilai() {
     try {
       const payload = siswaNilai.map(item => ({
         siswa_id: item.siswa_id,
-        mapel_id: jadwalAktif.mapel_id,
-        kelas_id: jadwalAktif.kelas_id,
+        mapel_id: jadwalAktif.mapel?.id,
+        kelas_id: jadwalAktif.kelas?.id,
         semester: selectedSemester,
         tahun_ajaran: tahunAjaran,
         nilai_tugas: item.nilai_tugas,
