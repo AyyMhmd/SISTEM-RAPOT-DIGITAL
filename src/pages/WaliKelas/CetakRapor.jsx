@@ -95,10 +95,10 @@ export default function CetakRapor() {
       if (absensiError) throw absensiError;
       
       const rekapAbsen = {
-        hadir: absensi.filter(a => a.status === 'Hadir').length,
-        sakit: absensi.filter(a => a.status === 'Sakit').length,
-        izin: absensi.filter(a => a.status === 'Izin').length,
-        alpa: absensi.filter(a => a.status === 'Alpa').length,
+        hadir: absensi.filter(a => a.status?.toUpperCase() === 'HADIR').length,
+        sakit: absensi.filter(a => a.status?.toUpperCase() === 'SAKIT').length,
+        izin: absensi.filter(a => a.status?.toUpperCase() === 'IZIN').length,
+        alpa: absensi.filter(a => a.status?.toUpperCase() === 'ALPA').length,
       };
 
       setRaporData({

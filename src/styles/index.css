@@ -1,13 +1,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Open+Sans:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Colors - Academic Navy Theme */
-  --primary: #1A365D;       /* Deep Navy */
-  --primary-hover: #2A4A7F;
-  --secondary: #E2E8F0;     /* Light Gray for borders/backgrounds */
+  /* Colors - Soft Green Theme */
+  --primary: #1B5E20;       /* Fern Green (Soft Green) */
+  --primary-hover: #3A5A30;
+  --secondary: #E2E8F0;     /* Light Gray */
   --accent: #D97706;        /* Warm accent (Amber) */
   
-  --bg-main: #FAFAFA;       /* Slightly warm off-white */
+  --bg-main: #F4F7F4;       /* Very soft green-tinted off-white */
   --bg-card: #FFFFFF;
   
   --text-main: #1F2937;
@@ -15,18 +15,43 @@
   
   --status-success: #047857; /* Deep Green for Lulus */
   --status-error: #B91C1C;   /* Deep Red for Remedial */
+  --status-warning: #B45309; /* Yellow-brown for Warning */
 
   /* Typography */
   --font-heading: 'Merriweather', serif;
   --font-body: 'Open Sans', sans-serif;
 
   /* Spacing & Layout */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
   
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  /* Modern soft shadows */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.04);
+  --shadow-md: 0 8px 16px rgba(0,0,0,0.06), 0 2px 6px rgba(0,0,0,0.04);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,0.08), 0 4px 8px rgba(0,0,0,0.04);
+}
+
+/* Dark Mode Theme */
+[data-theme='dark'] {
+  --primary: #124D1C;       /* Slightly lighter green for contrast */
+  --primary-hover: #6CA367;
+  --secondary: #374151;     /* Dark Gray for borders */
+  --accent: #F59E0B;        
+  
+  --bg-main: #111827;       /* Very dark blue-gray */
+  --bg-card: #1F2937;       /* Slightly lighter card background */
+  
+  --text-main: #F9FAFB;
+  --text-muted: #9CA3AF;
+
+  --status-success: #10B981; 
+  --status-error: #EF4444;   
+  --status-warning: #F59E0B; 
+
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
+  --shadow-md: 0 8px 16px rgba(0,0,0,0.3);
+  --shadow-lg: 0 12px 24px rgba(0,0,0,0.4);
 }
 
 * {
@@ -41,6 +66,7 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -168,3 +194,58 @@ button {
   }
 }
 
+/* Utilities */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hover Effects */
+.hover-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Global Transitions for theme */
+.layout-container, .sidebar, .main-content, .mobile-header, .page-content,
+div[style*="var(--bg-card)"], div[style*="var(--bg-main)"] {
+  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Forms & Inputs */
+input, select, textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--secondary);
+  border-radius: var(--radius-md);
+  background-color: var(--bg-card);
+  color: var(--text-main);
+  transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s, color 0.3s;
+  outline: none;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(79, 121, 66, 0.2);
+}
+
+[data-theme='dark'] input:focus, [data-theme='dark'] select:focus, [data-theme='dark'] textarea:focus {
+  box-shadow: 0 0 0 3px rgba(90, 141, 86, 0.3);
+}
+
+input:disabled, select:disabled, textarea:disabled {
+  background-color: rgba(0, 0, 0, 0.05);
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+[data-theme='dark'] input:disabled, [data-theme='dark'] select:disabled, [data-theme='dark'] textarea:disabled {
+  background-color: rgba(255, 255, 255, 0.05);
+}

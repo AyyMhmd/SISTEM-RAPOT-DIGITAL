@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
+import * as XLSX from 'xlsx';
+import { Download } from 'lucide-react';
 
 export default function RekapAbsensi() {
   const { user } = useAuth();
@@ -82,6 +84,38 @@ export default function RekapAbsensi() {
     }
   };
 
+  const handleExportExcel = () => {
+    if (rekap.length === 0) return;
+
+    const exportData = rekap.map((item, index) => ({
+      'No': index + 1,
+      'NIS': item.nis || '-',
+      'Nama Siswa': item.nama_lengkap,
+      'Hadir': item.hadir,
+      'Sakit': item.sakit,
+      'Izin': item.izin,
+      'Alpa': item.alpa
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Rekap Absensi");
+    
+    // Auto-size columns
+    const wscols = [
+      {wch: 5},
+      {wch: 15},
+      {wch: 30},
+      {wch: 10},
+      {wch: 10},
+      {wch: 10},
+      {wch: 10}
+    ];
+    worksheet['!cols'] = wscols;
+
+    XLSX.writeFile(workbook, `Rekap_Absensi_Kelas_${kelas?.nama_kelas}_${bulan}.xlsx`);
+  };
+
   if (!kelas && !loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Anda bukan wali kelas aktif.</div>;
   }
@@ -90,14 +124,30 @@ export default function RekapAbsensi() {
     <div>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Rekapitulasi Absensi Kelas {kelas?.nama_kelas}</h1>
 
-      <div style={{ marginBottom: '1.5rem' }}>
-        <label style={{ marginRight: '1rem', fontWeight: 600 }}>Pilih Bulan:</label>
-        <input 
-          type="month" 
-          value={bulan}
-          onChange={(e) => setBulan(e.target.value)}
-          style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--secondary)' }}
-        />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+        <div>
+          <label style={{ marginRight: '1rem', fontWeight: 600 }}>Pilih Bulan:</label>
+          <input 
+            type="month" 
+            value={bulan}
+            onChange={(e) => setBulan(e.target.value)}
+            style={{ padding: '0.5rem', borderRadius: '4px', border: '1px solid var(--secondary)' }}
+          />
+        </div>
+        
+        <button 
+          onClick={handleExportExcel}
+          disabled={loading || rekap.length === 0}
+          style={{
+            display: 'flex', alignItems: 'center', gap: '0.5rem',
+            padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)',
+            backgroundColor: '#10B981', color: 'white', border: 'none',
+            cursor: (loading || rekap.length === 0) ? 'not-allowed' : 'pointer',
+            fontWeight: 600, opacity: (loading || rekap.length === 0) ? 0.6 : 1
+          }}
+        >
+          <Download size={18} /> Export Excel
+        </button>
       </div>
 
       <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', overflowX: 'auto' }}>

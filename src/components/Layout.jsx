@@ -1,6 +1,6 @@
 import { Outlet, useNavigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X, FileCheck, FileText, Printer } from 'lucide-react';
+import { LogOut, User, LayoutDashboard, Users, UsersRound, CalendarCheck, BookOpen, CalendarDays, FileEdit, GraduationCap, School, Activity, Menu, X, FileCheck, FileText, Printer, Sun, Moon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function Layout() {
@@ -8,6 +8,16 @@ export default function Layout() {
   const navigate = useNavigate();
   const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
 
   // Close mobile menu when route changes
   useEffect(() => {
@@ -78,7 +88,7 @@ export default function Layout() {
           </button>
         </div>
 
-        <nav style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto' }}>
+        <nav className="hide-scrollbar" style={{ flex: 1, padding: '1.5rem 1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem', overflowY: 'auto' }}>
           
           {/* Menu Khusus TU */}
           {role === 'TU' && (
@@ -206,6 +216,30 @@ export default function Layout() {
         </nav>
 
         <div style={{ padding: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+          <button
+            onClick={toggleTheme}
+            style={{
+              width: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.75rem',
+              padding: '0.75rem',
+              marginBottom: '1rem',
+              backgroundColor: 'rgba(255,255,255,0.1)',
+              color: 'white',
+              border: 'none',
+              borderRadius: 'var(--radius-md)',
+              cursor: 'pointer',
+              transition: 'background-color 0.2s'
+            }}
+            onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.2)'}
+            onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.1)'}
+          >
+            {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
+            {theme === 'light' ? 'Mode Gelap' : 'Mode Terang'}
+          </button>
+
           <NavLink 
             to="/profil"
             style={({ isActive }) => ({
