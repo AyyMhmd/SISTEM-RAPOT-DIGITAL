@@ -131,7 +131,7 @@ export default function DashboardTU() {
           <div>
             <h2 style={{ fontSize: '1.125rem', marginBottom: '1rem' }}>Aksi Cepat</h2>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <Link to="/tu/siswa" className="hover-card" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundcolor: 'var(--text-primary)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}>
+              <Link to="/tu/siswa" className="hover-card" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}>
                 <UserPlus size={20} /> Tambah Siswa
               </Link>
               <Link to="/tu/pengguna" className="hover-card" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--primary)', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}>

@@ -127,7 +127,7 @@ export default function DataKelas() {
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Manajemen Data Kelas</h1>
         <button 
           onClick={() => openModal()}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundcolor: 'var(--text-primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer' }}
         >
           <Plus size={18} /> Tambah Kelas
         </button>

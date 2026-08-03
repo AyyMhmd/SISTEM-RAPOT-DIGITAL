@@ -155,7 +155,7 @@ export default function Login() {
               marginTop: '1rem',
               width: '100%',
               padding: '0.875rem',
-              backgroundcolor: 'var(--text-primary)',
+              backgroundColor: 'var(--primary)',
               color: 'white',
               border: 'none',
               borderRadius: 'var(--radius-md)',

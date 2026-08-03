@@ -104,7 +104,7 @@ export default function DataMapel() {
           onClick={() => handleOpenModal()}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundcolor: 'var(--text-primary)', color: 'white',
+            backgroundColor: 'var(--primary)', color: 'white',
             padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
             border: 'none', cursor: 'pointer', fontWeight: 600
           }}
@@ -216,7 +216,7 @@ export default function DataMapel() {
                 </button>
                 <button 
                   type="submit" disabled={submitLoading}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundcolor: 'var(--text-primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>

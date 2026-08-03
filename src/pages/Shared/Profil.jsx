@@ -127,7 +127,7 @@ export default function Profil() {
             <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', color: 'var(--text-main)' }}>
               {userData?.nama_lengkap || user?.email}
             </h2>
-            <div style={{ display: 'inline-block', backgroundcolor: 'var(--text-primary)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.875rem', fontWeight: 600 }}>
+            <div style={{ display: 'inline-block', backgroundColor: 'var(--primary)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.875rem', fontWeight: 600 }}>
               {getRoleLabel(userData?.role)}
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function Profil() {
             disabled={passLoading}
             style={{ 
               padding: '0.75rem 1.5rem', 
-              backgroundcolor: 'var(--text-primary)', 
+              backgroundColor: 'var(--primary)', 
               color: 'white', 
               border: 'none', 
               borderRadius: 'var(--radius-sm)', 

@@ -173,7 +173,7 @@ export default function DataPengguna() {
           }}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundcolor: 'var(--text-primary)', color: 'white',
+            backgroundColor: 'var(--primary)', color: 'white',
             padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
             border: 'none', cursor: 'pointer', fontWeight: 600
           }}
@@ -336,7 +336,7 @@ export default function DataPengguna() {
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   Batal
                 </button>
-                <button type="submit" disabled={submitLoading} style={{ flex: 1, padding: '0.75rem', backgroundcolor: 'var(--text-primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="submit" disabled={submitLoading} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>

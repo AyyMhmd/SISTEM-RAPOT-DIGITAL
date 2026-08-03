@@ -185,7 +185,7 @@ export default function ValidasiRapor() {
         <button
           onClick={handleApproveAll}
           disabled={actionLoading || raporData.length === 0}
-          style={{ padding: '0.75rem 1rem', backgroundcolor: 'var(--text-primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          style={{ padding: '0.75rem 1rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
           <CheckCircle size={18} /> Approve Semua
         </button>
