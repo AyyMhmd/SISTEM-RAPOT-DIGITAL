@@ -14,6 +14,11 @@ export default function DataSiswa() {
   const [editingId, setEditingId] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   
+  const [isKenaikanModalOpen, setIsKenaikanModalOpen] = useState(false);
+  const [kenaikanSourceKelas, setKenaikanSourceKelas] = useState('');
+  const [kenaikanTargetKelas, setKenaikanTargetKelas] = useState('');
+  const [kenaikanLoading, setKenaikanLoading] = useState(false);
+
   const [filterKelas, setFilterKelas] = useState('');
   
   const [formData, setFormData] = useState({
@@ -148,6 +153,48 @@ export default function DataSiswa() {
     } catch (error) {
       console.error('Error deleting siswa:', error);
       Swal.fire('Error!', 'Gagal menghapus siswa.', 'error');
+    }
+  };
+
+  const handleKenaikanMassal = async (e) => {
+    e.preventDefault();
+    if (kenaikanSourceKelas === kenaikanTargetKelas) {
+      Swal.fire('Error!', 'Kelas asal dan kelas tujuan tidak boleh sama.', 'error');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Semua siswa di kelas asal akan dipindahkan ke kelas tujuan.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--primary)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, Pindahkan!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
+    setKenaikanLoading(true);
+    try {
+      const { error } = await supabase
+        .from('siswa')
+        .update({ kelas_id: kenaikanTargetKelas })
+        .eq('kelas_id', kenaikanSourceKelas);
+
+      if (error) throw error;
+
+      Swal.fire('Berhasil!', 'Siswa berhasil dipindahkan ke kelas baru.', 'success');
+      setIsKenaikanModalOpen(false);
+      setKenaikanSourceKelas('');
+      setKenaikanTargetKelas('');
+      fetchData();
+    } catch (error) {
+      console.error('Error pindah kelas:', error);
+      Swal.fire('Error!', 'Gagal memindahkan siswa.', 'error');
+    } finally {
+      setKenaikanLoading(false);
     }
   };
 
@@ -324,6 +371,17 @@ export default function DataSiswa() {
               <option key={k.id} value={k.id}>{k.nama_kelas}</option>
             ))}
           </select>
+          <button 
+            onClick={() => setIsKenaikanModalOpen(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              backgroundColor: '#3b82f6', color: 'white',
+              padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
+              border: 'none', cursor: 'pointer', fontWeight: 600
+            }}
+          >
+            Pindah Kelas Massal
+          </button>
           <input 
             type="file" 
             accept=".xlsx, .xls" 
@@ -555,6 +613,264 @@ export default function DataSiswa() {
                   style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              <th style={{ padding: '1rem', fontWeight: 600 }}>Nama Lengkap</th>
+              <th style={{ padding: '1rem', fontWeight: 600 }}>L/P</th>
+              <th style={{ padding: '1rem', fontWeight: 600 }}>Kelas</th>
+              <th style={{ padding: '1rem', fontWeight: 600, width: '120px' }}>Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading ? (
+              <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center' }}>Memuat data...</td></tr>
+            ) : siswa.length === 0 ? (
+              <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center' }}>Belum ada data siswa.</td></tr>
+            ) : (
+              (filterKelas ? siswa.filter(s => s.kelas_id === filterKelas) : siswa).map((s) => (
+                <tr key={s.id} style={{ borderTop: '1px solid var(--secondary)' }}>
+                  <td style={{ padding: '1rem' }}>
+                    <div style={{ fontWeight: 600 }}>{s.nisn || '-'}</div>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{s.nis || '-'}</div>
+                  </td>
+                  <td style={{ padding: '1rem' }}>{s.nama_lengkap}</td>
+                  <td style={{ padding: '1rem' }}>{s.jenis_kelamin}</td>
+                  <td style={{ padding: '1rem' }}>
+                    <span style={{ 
+                      padding: '0.25rem 0.75rem', backgroundColor: 'rgba(26,54,93,0.1)', color: 'var(--text-primary)',
+                      borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600
+                    }}>
+                      {s.kelas?.nama_kelas || 'Belum ada kelas'}
+                    </span>
+                  </td>
+                  <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
+                    <button 
+                      onClick={() => handleOpenModal(s)}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '0.5rem' }}
+                      title="Edit"
+                    >
+                      <Edit2 size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(s.id)}
+                      style={{ background: 'none', border: 'none', color: 'var(--status-error)', cursor: 'pointer', padding: '0.5rem' }}
+                      title="Hapus"
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {isModalOpen && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{ 
+            backgroundColor: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)', 
+            width: '100%', maxWidth: '600px', maxHeight: '90vh', overflowY: 'auto'
+          }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>{editingId ? 'Edit Siswa' : 'Tambah Siswa Baru'}</h2>
+            
+            <form onSubmit={handleSubmit} style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>NISN</label>
+                <input 
+                  type="text" value={formData.nisn} onChange={(e) => setFormData({...formData, nisn: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>NIS</label>
+                <input 
+                  type="text" value={formData.nis} onChange={(e) => setFormData({...formData, nis: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Nama Lengkap *</label>
+                <input 
+                  type="text" required value={formData.nama_lengkap} onChange={(e) => setFormData({...formData, nama_lengkap: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Jenis Kelamin</label>
+                <select 
+                  value={formData.jenis_kelamin} onChange={(e) => setFormData({...formData, jenis_kelamin: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="L">Laki-laki (L)</option>
+                  <option value="P">Perempuan (P)</option>
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Kelas</label>
+                <select 
+                  value={formData.kelas_id} onChange={(e) => setFormData({...formData, kelas_id: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Pilih Kelas --</option>
+                  {kelas.map(k => (
+                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Tempat Lahir</label>
+                <input 
+                  type="text" value={formData.tempat_lahir} onChange={(e) => setFormData({...formData, tempat_lahir: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Tanggal Lahir</label>
+                <input 
+                  type="date" value={formData.tanggal_lahir} onChange={(e) => setFormData({...formData, tanggal_lahir: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Agama</label>
+                <input 
+                  type="text" placeholder="Islam / Kristen / dll" value={formData.agama} onChange={(e) => setFormData({...formData, agama: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Alamat Lengkap</label>
+                <textarea 
+                  rows="2" value={formData.alamat} onChange={(e) => setFormData({...formData, alamat: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Nama Ayah</label>
+                <input 
+                  type="text" value={formData.nama_ayah} onChange={(e) => setFormData({...formData, nama_ayah: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Nama Ibu</label>
+                <input 
+                  type="text" value={formData.nama_ibu} onChange={(e) => setFormData({...formData, nama_ibu: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>No HP Ortu/Wali (Cth: 628...)</label>
+                <input 
+                  type="text" placeholder="62812345678" value={formData.no_hp_ortu} onChange={(e) => setFormData({...formData, no_hp_ortu: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                />
+              </div>
+
+              <div style={{ gridColumn: '1 / -1', padding: '1rem', backgroundColor: 'rgba(26,54,93,0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(26,54,93,0.1)' }}>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tautkan Akun Login Siswa (Opsional)</label>
+                <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pilih akun yang didaftarkan di halaman Data Pengguna agar siswa ini bisa login melihat rapornya.</p>
+                <select 
+                  value={formData.user_id} onChange={(e) => setFormData({...formData, user_id: e.target.value})}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Tidak Ditautkan --</option>
+                  {usersSiswa.map(u => (
+                    <option key={u.id} value={u.id}>{u.nama_lengkap} ({u.email})</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button 
+                  type="button" onClick={() => setIsModalOpen(false)}
+                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: 'transparent', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit" disabled={submitLoading}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
+                >
+                  {submitLoading ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+      {/* Modal Kenaikan Kelas Massal */}
+      {isKenaikanModalOpen && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{ 
+            backgroundColor: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)', 
+            width: '100%', maxWidth: '500px'
+          }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Pindah Kelas Massal (Kenaikan Kelas)</h2>
+            <p style={{ marginBottom: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              Fitur ini akan memindahkan <strong>semua</strong> siswa dari kelas asal ke kelas tujuan secara bersamaan.
+            </p>
+            
+            <form onSubmit={handleKenaikanMassal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Dari Kelas (Asal)</label>
+                <select 
+                  required
+                  value={kenaikanSourceKelas} onChange={(e) => setKenaikanSourceKelas(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Pilih Kelas Asal --</option>
+                  {kelas.map(k => (
+                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Ke Kelas (Tujuan)</label>
+                <select 
+                  required
+                  value={kenaikanTargetKelas} onChange={(e) => setKenaikanTargetKelas(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Pilih Kelas Tujuan --</option>
+                  {kelas.map(k => (
+                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button 
+                  type="button" onClick={() => setIsKenaikanModalOpen(false)}
+                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: 'transparent', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit" disabled={kenaikanLoading}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: '#3b82f6', color: 'white', borderRadius: 'var(--radius-sm)', cursor: kenaikanLoading ? 'not-allowed' : 'pointer' }}
+                >
+                  {kenaikanLoading ? 'Memproses...' : 'Pindahkan Sekarang'}
                 </button>
               </div>
             </form>
