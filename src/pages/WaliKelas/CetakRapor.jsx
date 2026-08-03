@@ -146,7 +146,7 @@ export default function CetakRapor() {
     
     let text = `*Laporan Hasil Belajar (Rapor Digital)*\n`;
     text += `Nama Siswa: ${siswa.nama_lengkap}\n`;
-    text += `Kelas: ${kelas.nama_kelas}\n`;
+    text += `Kelas: ${kelasActive.nama_kelas}\n`;
     text += `Semester: ${selectedSemester} (${tahunAjaran})\n\n`;
     
     text += `*Nilai Mata Pelajaran:*\n`;
