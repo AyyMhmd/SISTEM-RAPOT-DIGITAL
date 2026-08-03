@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
-import { Users, UsersRound, BookOpen, UserPlus, UserCog, CalendarDays } from 'lucide-react';
+import { Users, UsersRound, BookOpen, UserPlus, UserCog, CalendarDays, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+import { downloadDatabaseBackup } from '../../utils/BackupDatabase';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import ActivityLogWidget from '../../components/ActivityLogWidget';
 
 export default function DashboardTU() {
+  const { user } = useAuth();
   const [stats, setStats] = useState({ siswa: 0, pengguna: 0, kelas: 0 });
   const [chartDataSiswa, setChartDataSiswa] = useState([]);
   const [chartDataPengguna, setChartDataPengguna] = useState([]);
@@ -141,6 +144,13 @@ export default function DashboardTU() {
               <Link to="/tu/jadwal" className="hover-card" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--bg-card)', color: 'var(--text-primary)', border: '1px solid var(--primary)', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}>
                 <CalendarDays size={20} /> Atur Jadwal
               </Link>
+              <button 
+                onClick={() => downloadDatabaseBackup(user)}
+                className="hover-card" 
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: '#334155', color: 'white', border: 'none', cursor: 'pointer', padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-md)', fontWeight: 600 }}
+              >
+                <Download size={20} /> Unduh Backup Database
+              </button>
             </div>
           </div>
 
