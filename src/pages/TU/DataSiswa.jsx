@@ -668,7 +668,7 @@ export default function DataSiswa() {
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
                 <button 
                   type="button" onClick={() => setIsKenaikanModalOpen(false)}
-                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: 'transparent', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: '#FF0000', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
                 >
                   Batal
                 </button>
