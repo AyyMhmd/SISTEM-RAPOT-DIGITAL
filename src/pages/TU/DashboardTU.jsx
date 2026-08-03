@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { Users, UsersRound, BookOpen, UserPlus, UserCog, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import ActivityLogWidget from '../../components/ActivityLogWidget';
 
 export default function DashboardTU() {
   const [stats, setStats] = useState({ siswa: 0, pengguna: 0, kelas: 0 });
@@ -181,6 +182,9 @@ export default function DashboardTU() {
             </div>
 
           </div>
+
+          {/* Widget Histori Aktivitas */}
+          <ActivityLogWidget roleView="TU" />
 
         </div>
       )}

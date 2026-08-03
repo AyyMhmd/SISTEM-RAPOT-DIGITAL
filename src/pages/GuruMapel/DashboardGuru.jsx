@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import { BookOpen, UsersRound, FileEdit, School } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
+import ActivityLogWidget from '../../components/ActivityLogWidget';
 
 export default function DashboardGuru() {
   const { user } = useAuth();
@@ -180,6 +181,9 @@ export default function DashboardGuru() {
               ))}
             </div>
           </div>
+
+          {/* Widget Histori Aktivitas */}
+          <ActivityLogWidget roleView="PERSONAL" />
 
         </div>
       )}

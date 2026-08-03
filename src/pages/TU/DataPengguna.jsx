@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Trash2, Edit2, Eye, EyeOff, Shield, RefreshCw } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAuth } from '../../contexts/AuthContext';
+import { catatLog } from '../../utils/auditLogger';
 
 export default function DataPengguna() {
+  const { user } = useAuth();
   const [pengguna, setPengguna] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -70,6 +73,9 @@ export default function DataPengguna() {
           .eq('id', editingId);
 
         if (error) throw error;
+        
+        await catatLog(user.id, user.nama_lengkap, user.role, 'EDIT', `Mengubah data pengguna: ${formData.nama_lengkap} (Role baru: ${formData.role})`);
+        
         Swal.fire({
           title: 'Berhasil!',
           text: 'Data pengguna berhasil diperbarui.',
@@ -90,6 +96,8 @@ export default function DataPengguna() {
         });
 
         if (error) throw error;
+        
+        await catatLog(user.id, user.nama_lengkap, user.role, 'TAMBAH', `Menambahkan pengguna baru: ${formData.nama_lengkap} (Role: ${formData.role})`);
 
         Swal.fire({
           title: 'Berhasil membuat pengguna!',
@@ -125,8 +133,12 @@ export default function DataPengguna() {
     if (!result.isConfirmed) return;
     
     try {
+      const penggunaToDelete = pengguna.find(p => p.id === id);
       const { error } = await supabase.from('users').delete().eq('id', id);
       if (error) throw error;
+      
+      await catatLog(user.id, user.nama_lengkap, user.role, 'HAPUS', `Menghapus pengguna: ${penggunaToDelete?.nama_lengkap || 'Unknown'}`);
+      
       Swal.fire('Terhapus!', 'Pengguna berhasil dihapus.', 'success');
       fetchPengguna();
     } catch (error) {

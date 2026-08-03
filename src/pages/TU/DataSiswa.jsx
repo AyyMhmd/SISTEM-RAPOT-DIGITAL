@@ -3,8 +3,11 @@ import { supabase } from '../../lib/supabaseClient';
 import { Plus, Trash2, Edit2, UploadCloud } from 'lucide-react';
 import Swal from 'sweetalert2';
 import * as XLSX from 'xlsx';
+import { useAuth } from '../../contexts/AuthContext';
+import { catatLog } from '../../utils/auditLogger';
 
 export default function DataSiswa() {
+  const { user } = useAuth();
   const [siswa, setSiswa] = useState([]);
   const [kelas, setKelas] = useState([]);
   const [usersSiswa, setUsersSiswa] = useState([]);
@@ -115,9 +118,11 @@ export default function DataSiswa() {
       if (editingId) {
         const { error } = await supabase.from('siswa').update(payload).eq('id', editingId);
         if (error) throw error;
+        await catatLog(user.id, user.nama_lengkap, user.role, 'EDIT', `Mengubah data siswa: ${payload.nama_lengkap} (NISN: ${payload.nisn})`);
       } else {
         const { error } = await supabase.from('siswa').insert([payload]);
         if (error) throw error;
+        await catatLog(user.id, user.nama_lengkap, user.role, 'TAMBAH', `Menambahkan siswa baru: ${payload.nama_lengkap} (NISN: ${payload.nisn})`);
       }
 
       setIsModalOpen(false);
@@ -146,8 +151,12 @@ export default function DataSiswa() {
     if (!result.isConfirmed) return;
 
     try {
+      const siswaToDelete = siswa.find(s => s.id === id);
       const { error } = await supabase.from('siswa').delete().eq('id', id);
       if (error) throw error;
+      
+      await catatLog(user.id, user.nama_lengkap, user.role, 'HAPUS', `Menghapus data siswa: ${siswaToDelete?.nama_lengkap || 'Unknown'}`);
+      
       Swal.fire('Terhapus!', 'Siswa berhasil dihapus.', 'success');
       fetchData();
     } catch (error) {
@@ -184,6 +193,10 @@ export default function DataSiswa() {
         .eq('kelas_id', kenaikanSourceKelas);
 
       if (error) throw error;
+
+      const sourceName = kelas.find(k => k.id === kenaikanSourceKelas)?.nama_kelas || 'Unknown';
+      const targetName = kelas.find(k => k.id === kenaikanTargetKelas)?.nama_kelas || 'Unknown';
+      await catatLog(user.id, user.nama_lengkap, user.role, 'UBAH KELAS MASSAL', `Memindahkan semua siswa dari Kelas ${sourceName} ke Kelas ${targetName}`);
 
       Swal.fire('Berhasil!', 'Siswa berhasil dipindahkan ke kelas baru.', 'success');
       setIsKenaikanModalOpen(false);
@@ -338,6 +351,9 @@ export default function DataSiswa() {
             failCount++;
           }
         } // End loop
+
+        const kelasTujuanName = kelas.find(k => k.id === selectedKelasId)?.nama_kelas || 'Unknown';
+        await catatLog(user.id, user.nama_lengkap, user.role, 'IMPORT EXCEL', `Mengimpor ${successCount} data siswa ke Kelas ${kelasTujuanName}`);
 
         fetchData();
         Swal.fire(

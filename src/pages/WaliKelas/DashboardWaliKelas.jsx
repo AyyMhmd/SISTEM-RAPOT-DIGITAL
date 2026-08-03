@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import { UsersRound, Activity, AlertTriangle, BookOpen, X } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import ActivityLogWidget from '../../components/ActivityLogWidget';
 
 export default function DashboardWaliKelas() {
   const { user } = useAuth();
@@ -310,6 +311,11 @@ export default function DashboardWaliKelas() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Widget Histori Aktivitas */}
+      {kelasActive && (
+        <ActivityLogWidget roleView="PERSONAL" />
       )}
 
       {/* Modal Absensi */}
