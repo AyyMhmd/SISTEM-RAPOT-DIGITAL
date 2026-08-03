@@ -14,6 +14,11 @@ export default function DataSiswa() {
   const [editingId, setEditingId] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   
+  const [isKenaikanModalOpen, setIsKenaikanModalOpen] = useState(false);
+  const [kenaikanSourceKelas, setKenaikanSourceKelas] = useState('');
+  const [kenaikanTargetKelas, setKenaikanTargetKelas] = useState('');
+  const [kenaikanLoading, setKenaikanLoading] = useState(false);
+
   const [filterKelas, setFilterKelas] = useState('');
   
   const [formData, setFormData] = useState({
@@ -148,6 +153,48 @@ export default function DataSiswa() {
     } catch (error) {
       console.error('Error deleting siswa:', error);
       Swal.fire('Error!', 'Gagal menghapus siswa.', 'error');
+    }
+  };
+
+  const handleKenaikanMassal = async (e) => {
+    e.preventDefault();
+    if (kenaikanSourceKelas === kenaikanTargetKelas) {
+      Swal.fire('Error!', 'Kelas asal dan kelas tujuan tidak boleh sama.', 'error');
+      return;
+    }
+
+    const result = await Swal.fire({
+      title: 'Apakah Anda yakin?',
+      text: "Semua siswa di kelas asal akan dipindahkan ke kelas tujuan.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: 'var(--primary)',
+      cancelButtonColor: 'var(--secondary)',
+      confirmButtonText: 'Ya, Pindahkan!',
+      cancelButtonText: 'Batal'
+    });
+
+    if (!result.isConfirmed) return;
+
+    setKenaikanLoading(true);
+    try {
+      const { error } = await supabase
+        .from('siswa')
+        .update({ kelas_id: kenaikanTargetKelas })
+        .eq('kelas_id', kenaikanSourceKelas);
+
+      if (error) throw error;
+
+      Swal.fire('Berhasil!', 'Siswa berhasil dipindahkan ke kelas baru.', 'success');
+      setIsKenaikanModalOpen(false);
+      setKenaikanSourceKelas('');
+      setKenaikanTargetKelas('');
+      fetchData();
+    } catch (error) {
+      console.error('Error pindah kelas:', error);
+      Swal.fire('Error!', 'Gagal memindahkan siswa.', 'error');
+    } finally {
+      setKenaikanLoading(false);
     }
   };
 
@@ -324,6 +371,17 @@ export default function DataSiswa() {
               <option key={k.id} value={k.id}>{k.nama_kelas}</option>
             ))}
           </select>
+          <button 
+            onClick={() => setIsKenaikanModalOpen(true)}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              backgroundColor: '#3b82f6', color: 'white',
+              padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
+              border: 'none', cursor: 'pointer', fontWeight: 600
+            }}
+          >
+            Pindah Kelas Massal
+          </button>
           <input 
             type="file" 
             accept=".xlsx, .xls" 
@@ -555,6 +613,70 @@ export default function DataSiswa() {
                   style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal Kenaikan Kelas Massal */}
+      {isKenaikanModalOpen && (
+        <div style={{ 
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+          zIndex: 1000, padding: '1rem'
+        }}>
+          <div style={{ 
+            backgroundColor: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)', 
+            width: '100%', maxWidth: '500px'
+          }}>
+            <h2 style={{ margin: '0 0 1.5rem 0', fontSize: '1.25rem' }}>Pindah Kelas Massal (Kenaikan Kelas)</h2>
+            <p style={{ marginBottom: '1.5rem', fontSize: '0.875rem', color: 'var(--text-muted)' }}>
+              Fitur ini akan memindahkan <strong>semua</strong> siswa dari kelas asal ke kelas tujuan secara bersamaan.
+            </p>
+            
+            <form onSubmit={handleKenaikanMassal} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Dari Kelas (Asal)</label>
+                <select 
+                  required
+                  value={kenaikanSourceKelas} onChange={(e) => setKenaikanSourceKelas(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Pilih Kelas Asal --</option>
+                  {kelas.map(k => (
+                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+                  ))}
+                </select>
+              </div>
+              
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem' }}>Ke Kelas (Tujuan)</label>
+                <select 
+                  required
+                  value={kenaikanTargetKelas} onChange={(e) => setKenaikanTargetKelas(e.target.value)}
+                  style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+                >
+                  <option value="">-- Pilih Kelas Tujuan --</option>
+                  {kelas.map(k => (
+                    <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1.5rem' }}>
+                <button 
+                  type="button" onClick={() => setIsKenaikanModalOpen(false)}
+                  style={{ padding: '0.75rem 1.5rem', border: '1px solid var(--secondary)', backgroundColor: 'transparent', borderRadius: 'var(--radius-sm)', cursor: 'pointer' }}
+                >
+                  Batal
+                </button>
+                <button 
+                  type="submit" disabled={kenaikanLoading}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: '#3b82f6', color: 'white', borderRadius: 'var(--radius-sm)', cursor: kenaikanLoading ? 'not-allowed' : 'pointer' }}
+                >
+                  {kenaikanLoading ? 'Memproses...' : 'Pindahkan Sekarang'}
                 </button>
               </div>
             </form>
