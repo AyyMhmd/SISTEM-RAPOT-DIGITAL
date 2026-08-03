@@ -169,7 +169,7 @@ export default function DataSiswa() {
       icon: 'warning',
       showCancelButton: true,
       confirmButtonColor: 'var(--primary)',
-      cancelButtonColor: 'var(--secondary)',
+      cancelButtonColor: 'var(--status-error)', // Mengubah warna tombol Batal menjadi merah
       confirmButtonText: 'Ya, Pindahkan!',
       cancelButtonText: 'Batal'
     });
