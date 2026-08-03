@@ -127,7 +127,7 @@ export default function DataKelas() {
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Manajemen Data Kelas</h1>
         <button 
           onClick={() => openModal()}
-          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundcolor: 'var(--text-primary)', color: 'white', padding: '0.5rem 1rem', borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer' }}
         >
           <Plus size={18} /> Tambah Kelas
         </button>
@@ -157,7 +157,7 @@ export default function DataKelas() {
                   <td style={{ padding: '1rem' }}>{item.tahun_ajaran}</td>
                   <td style={{ padding: '1rem' }}>{item.users?.nama_lengkap || '-'}</td>
                   <td style={{ padding: '1rem', textAlign: 'center' }}>
-                    <button onClick={() => openModal(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--primary)', marginRight: '0.5rem' }}>
+                    <button onClick={() => openModal(item)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-primary)', marginRight: '0.5rem' }}>
                       <Edit2 size={18} />
                     </button>
                     <button onClick={() => handleDelete(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--status-error)' }}>

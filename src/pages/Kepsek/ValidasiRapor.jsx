@@ -112,7 +112,7 @@ export default function ValidasiRapor() {
       text: `Yakin ingin menyetujui ${unapproved.length} rapor sekaligus?`,
       icon: 'question',
       showCancelButton: true,
-      confirmButtonColor: 'var(--primary)',
+      confirmButtoncolor: 'var(--text-primary)',
       cancelButtonColor: 'var(--secondary)',
       confirmButtonText: 'Ya, setujui semua!',
       cancelButtonText: 'Batal'
@@ -142,7 +142,7 @@ export default function ValidasiRapor() {
   return (
     <div>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <FileCheck size={24} color="var(--primary)" />
+        <FileCheck size={24} color="var(--text-primary)" />
         Validasi & Tanda Tangan Rapor
       </h1>
 
@@ -185,7 +185,7 @@ export default function ValidasiRapor() {
         <button
           onClick={handleApproveAll}
           disabled={actionLoading || raporData.length === 0}
-          style={{ padding: '0.75rem 1rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+          style={{ padding: '0.75rem 1rem', backgroundcolor: 'var(--text-primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
         >
           <CheckCircle size={18} /> Approve Semua
         </button>

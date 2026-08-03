@@ -159,7 +159,7 @@ export default function DataPengguna() {
           }}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundColor: 'var(--primary)', color: 'white',
+            backgroundcolor: 'var(--text-primary)', color: 'white',
             padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
             border: 'none', cursor: 'pointer', fontWeight: 600
           }}
@@ -196,7 +196,7 @@ export default function DataPengguna() {
                     <span style={{ 
                       padding: '0.25rem 0.75rem', 
                       backgroundColor: 'rgba(26,54,93,0.1)', 
-                      color: 'var(--primary)',
+                      color: 'var(--text-primary)',
                       borderRadius: '999px',
                       fontSize: '0.75rem',
                       fontWeight: 600
@@ -208,7 +208,7 @@ export default function DataPengguna() {
                     <div style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
                         onClick={() => handleEdit(u)}
-                        style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.5rem' }}
+                        style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '0.5rem' }}
                         title="Edit"
                       >
                         <Edit2 size={18} />
@@ -321,7 +321,7 @@ export default function DataPengguna() {
                 <button type="button" onClick={() => setIsModalOpen(false)} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--secondary)', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   Batal
                 </button>
-                <button type="submit" disabled={submitLoading} style={{ flex: 1, padding: '0.75rem', backgroundColor: 'var(--primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
+                <button type="submit" disabled={submitLoading} style={{ flex: 1, padding: '0.75rem', backgroundcolor: 'var(--text-primary)', color: 'white', border: 'none', borderRadius: 'var(--radius-sm)', cursor: 'pointer', fontWeight: 600 }}>
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>
               </div>

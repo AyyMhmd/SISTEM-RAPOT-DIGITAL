@@ -12,6 +12,7 @@
   
   --text-main: #1F2937;
   --text-muted: #4B5563;
+  --text-primary: var(--primary); /* Text that should be primary color in light mode, but white in dark mode */
   
   --status-success: #047857; /* Deep Green for Lulus */
   --status-error: #B91C1C;   /* Deep Red for Remedial */
@@ -34,8 +35,8 @@
 
 /* Dark Mode Theme */
 [data-theme='dark'] {
-  --primary: #124D1C;       /* Slightly lighter green for contrast */
-  --primary-hover: #6CA367;
+  --primary: #15803d;       /* A balanced green for button backgrounds */
+  --primary-hover: #166534;
   --secondary: #374151;     /* Dark Gray for borders */
   --accent: #F59E0B;        
   
@@ -44,6 +45,7 @@
   
   --text-main: #F9FAFB;
   --text-muted: #9CA3AF;
+  --text-primary: #F9FAFB;  /* White for headings/primary text in dark mode */
 
   --status-success: #10B981; 
   --status-error: #EF4444;   
@@ -52,6 +54,16 @@
   --shadow-sm: 0 2px 4px rgba(0,0,0,0.2);
   --shadow-md: 0 8px 16px rgba(0,0,0,0.3);
   --shadow-lg: 0 12px 24px rgba(0,0,0,0.4);
+}
+
+[data-theme='dark'] h1, 
+[data-theme='dark'] h2, 
+[data-theme='dark'] h3, 
+[data-theme='dark'] h4, 
+[data-theme='dark'] h5, 
+[data-theme='dark'] h6,
+[data-theme='dark'] a {
+  color: var(--text-main);
 }
 
 * {

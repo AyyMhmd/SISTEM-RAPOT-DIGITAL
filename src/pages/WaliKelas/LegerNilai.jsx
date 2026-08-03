@@ -216,7 +216,7 @@ export default function LegerNilai() {
                         )
                       })
                     )}
-                    <td style={{ padding: '1rem', textAlign: 'center', fontWeight: 600, borderLeft: '1px solid #e2e8f0', color: 'var(--primary)' }}>
+                    <td style={{ padding: '1rem', textAlign: 'center', fontWeight: 600, borderLeft: '1px solid #e2e8f0', color: 'var(--text-primary)' }}>
                       {stats.total}
                     </td>
                     <td style={{ padding: '1rem', textAlign: 'center', fontWeight: 600 }}>

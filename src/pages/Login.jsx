@@ -62,7 +62,7 @@ export default function Login() {
               style={{ width: '90px', height: '90px', objectFit: 'contain', borderRadius: '50%', boxShadow: 'var(--shadow-md)' }} 
             />
           </div>
-          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--primary)' }}>Sistem Rapor Digital</h1>
+          <h1 style={{ fontSize: '1.75rem', marginBottom: '0.5rem', color: 'var(--text-primary)' }}>Sistem Rapor Digital</h1>
           <p style={{ color: 'var(--text-muted)' }}>Silakan masuk ke akun Anda</p>
         </div>
 
@@ -155,7 +155,7 @@ export default function Login() {
               marginTop: '1rem',
               width: '100%',
               padding: '0.875rem',
-              backgroundColor: 'var(--primary)',
+              backgroundcolor: 'var(--text-primary)',
               color: 'white',
               border: 'none',
               borderRadius: 'var(--radius-md)',

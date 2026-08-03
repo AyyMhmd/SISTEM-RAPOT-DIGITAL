@@ -198,7 +198,7 @@ export default function InputCatatanWali() {
             disabled={saving || siswaData.length === 0}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
-              backgroundColor: 'var(--primary)', color: 'white',
+              backgroundcolor: 'var(--text-primary)', color: 'white',
               padding: '0.75rem 1.5rem', borderRadius: 'var(--radius-sm)',
               border: 'none', cursor: (saving || siswaData.length === 0) ? 'not-allowed' : 'pointer', 
               fontWeight: 600, opacity: (saving || siswaData.length === 0) ? 0.7 : 1

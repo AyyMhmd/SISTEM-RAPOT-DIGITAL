@@ -113,7 +113,7 @@ export default function Profil() {
     <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
       
       <h1 style={{ fontSize: '1.5rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <User size={24} color="var(--primary)" />
+        <User size={24} color="var(--text-primary)" />
         Profil Pribadi
       </h1>
 
@@ -127,7 +127,7 @@ export default function Profil() {
             <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.5rem', color: 'var(--text-main)' }}>
               {userData?.nama_lengkap || user?.email}
             </h2>
-            <div style={{ display: 'inline-block', backgroundColor: 'var(--primary)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.875rem', fontWeight: 600 }}>
+            <div style={{ display: 'inline-block', backgroundcolor: 'var(--text-primary)', color: 'white', padding: '0.25rem 0.75rem', borderRadius: '99px', fontSize: '0.875rem', fontWeight: 600 }}>
               {getRoleLabel(userData?.role)}
             </div>
           </div>
@@ -151,7 +151,7 @@ export default function Profil() {
         {role === 'SISWA' && (
           <div style={{ borderTop: '1px solid var(--secondary)', paddingTop: '2rem' }}>
             <h3 style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <GraduationCap size={20} color="var(--primary)" /> Data Induk Siswa
+              <GraduationCap size={20} color="var(--text-primary)" /> Data Induk Siswa
             </h3>
             
             {!siswaData ? (
@@ -206,7 +206,7 @@ export default function Profil() {
       {/* Form Ubah Password */}
       <div style={{ backgroundColor: 'var(--bg-card)', padding: '2rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', boxShadow: 'var(--shadow-sm)' }}>
         <h3 style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Lock size={20} color="var(--primary)" /> Ubah Kata Sandi (Password)
+          <Lock size={20} color="var(--text-primary)" /> Ubah Kata Sandi (Password)
         </h3>
         
         {passMsg.text && (
@@ -250,7 +250,7 @@ export default function Profil() {
             disabled={passLoading}
             style={{ 
               padding: '0.75rem 1.5rem', 
-              backgroundColor: 'var(--primary)', 
+              backgroundcolor: 'var(--text-primary)', 
               color: 'white', 
               border: 'none', 
               borderRadius: 'var(--radius-sm)', 

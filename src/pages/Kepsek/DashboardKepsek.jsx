@@ -110,7 +110,7 @@ export default function DashboardKepsek() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-          <Activity size={24} color="var(--primary)" />
+          <Activity size={24} color="var(--text-primary)" />
           Dasbor Eksekutif
         </h1>
         <button 
@@ -131,7 +131,7 @@ export default function DashboardKepsek() {
           </div>
           <div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Total Siswa</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>{stats.totalSiswa}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalSiswa}</div>
           </div>
         </div>
 
@@ -141,7 +141,7 @@ export default function DashboardKepsek() {
           </div>
           <div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Total Kelas Aktif</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>{stats.totalKelas}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalKelas}</div>
           </div>
         </div>
 
@@ -151,7 +151,7 @@ export default function DashboardKepsek() {
           </div>
           <div>
             <div style={{ color: 'var(--text-muted)', fontSize: '0.875rem', fontWeight: 600 }}>Total Tenaga Pendidik</div>
-            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>{stats.totalGuru}</div>
+            <div style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{stats.totalGuru}</div>
           </div>
         </div>
 
@@ -201,7 +201,7 @@ export default function DashboardKepsek() {
                 daftarWali.map((k) => (
                   <tr key={k.id} style={{ borderBottom: '1px solid var(--secondary)' }}>
                     <td style={{ padding: '1rem' }}>
-                      <span style={{ fontWeight: 600, color: 'var(--primary)' }}>{k.nama_kelas}</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{k.nama_kelas}</span>
                     </td>
                     <td style={{ padding: '1rem' }}>{k.wali_kelas?.nama_lengkap || <span style={{ color: 'var(--status-error)' }}>Belum ditugaskan</span>}</td>
                     <td style={{ padding: '1rem', fontSize: '0.875rem' }}>{k.tahun_ajaran}</td>

@@ -334,7 +334,7 @@ export default function DataSiswa() {
             onClick={() => handleOpenModal()}
             style={{
               display: 'flex', alignItems: 'center', gap: '0.5rem',
-              backgroundColor: 'var(--primary)', color: 'white',
+              backgroundcolor: 'var(--text-primary)', color: 'white',
               padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
               border: 'none', cursor: 'pointer', fontWeight: 600
             }}
@@ -371,7 +371,7 @@ export default function DataSiswa() {
                   <td style={{ padding: '1rem' }}>{s.jenis_kelamin}</td>
                   <td style={{ padding: '1rem' }}>
                     <span style={{ 
-                      padding: '0.25rem 0.75rem', backgroundColor: 'rgba(26,54,93,0.1)', color: 'var(--primary)',
+                      padding: '0.25rem 0.75rem', backgroundColor: 'rgba(26,54,93,0.1)', color: 'var(--text-primary)',
                       borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600
                     }}>
                       {s.kelas?.nama_kelas || 'Belum ada kelas'}
@@ -380,7 +380,7 @@ export default function DataSiswa() {
                   <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
                     <button 
                       onClick={() => handleOpenModal(s)}
-                      style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.5rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '0.5rem' }}
                       title="Edit"
                     >
                       <Edit2 size={18} />
@@ -518,7 +518,7 @@ export default function DataSiswa() {
               </div>
 
               <div style={{ gridColumn: '1 / -1', padding: '1rem', backgroundColor: 'rgba(26,54,93,0.05)', borderRadius: 'var(--radius-sm)', border: '1px solid rgba(26,54,93,0.1)' }}>
-                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem', color: 'var(--primary)' }}>Tautkan Akun Login Siswa (Opsional)</label>
+                <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600, fontSize: '0.875rem', color: 'var(--text-primary)' }}>Tautkan Akun Login Siswa (Opsional)</label>
                 <p style={{ margin: '0 0 0.75rem 0', fontSize: '0.75rem', color: 'var(--text-muted)' }}>Pilih akun yang didaftarkan di halaman Data Pengguna agar siswa ini bisa login melihat rapornya.</p>
                 <select 
                   value={formData.user_id} onChange={(e) => setFormData({...formData, user_id: e.target.value})}
@@ -540,7 +540,7 @@ export default function DataSiswa() {
                 </button>
                 <button 
                   type="submit" disabled={submitLoading}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundcolor: 'var(--text-primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>

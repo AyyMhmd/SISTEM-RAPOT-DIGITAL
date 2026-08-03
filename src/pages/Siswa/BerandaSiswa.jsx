@@ -103,7 +103,7 @@ export default function BerandaSiswa() {
   return (
     <div>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-        <User size={24} color="var(--primary)" />
+        <User size={24} color="var(--text-primary)" />
         Selamat datang, {siswa.nama_lengkap}
       </h1>
 
@@ -144,7 +144,7 @@ export default function BerandaSiswa() {
       {/* Chart Perkembangan Nilai */}
       <div style={{ backgroundColor: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', boxShadow: 'var(--shadow-sm)' }}>
         <h3 style={{ margin: '0 0 1.5rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <Activity size={20} color="var(--primary)" />
+          <Activity size={20} color="var(--text-primary)" />
           Grafik Perkembangan Nilai Rata-rata
         </h3>
         

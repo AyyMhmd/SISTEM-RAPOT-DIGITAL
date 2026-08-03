@@ -122,7 +122,7 @@ export default function JadwalMengajar() {
           onClick={handleOpenModal}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundColor: 'var(--primary)', color: 'white',
+            backgroundcolor: 'var(--text-primary)', color: 'white',
             padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
             border: 'none', cursor: 'pointer', fontWeight: 600
           }}
@@ -153,7 +153,7 @@ export default function JadwalMengajar() {
                   <td style={{ padding: '1rem' }}>{j.mapel?.nama_mapel}</td>
                   <td style={{ padding: '1rem' }}>
                     <span style={{ 
-                      padding: '0.25rem 0.5rem', backgroundColor: 'rgba(26,54,93,0.1)', color: 'var(--primary)',
+                      padding: '0.25rem 0.5rem', backgroundColor: 'rgba(26,54,93,0.1)', color: 'var(--text-primary)',
                       borderRadius: '4px', fontWeight: 600, fontSize: '0.875rem' 
                     }}>
                       {j.kelas?.nama_kelas}
@@ -242,7 +242,7 @@ export default function JadwalMengajar() {
                 </button>
                 <button 
                   type="submit" disabled={submitLoading}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundcolor: 'var(--text-primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>

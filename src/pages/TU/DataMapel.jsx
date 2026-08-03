@@ -104,7 +104,7 @@ export default function DataMapel() {
           onClick={() => handleOpenModal()}
           style={{
             display: 'flex', alignItems: 'center', gap: '0.5rem',
-            backgroundColor: 'var(--primary)', color: 'white',
+            backgroundcolor: 'var(--text-primary)', color: 'white',
             padding: '0.75rem 1rem', borderRadius: 'var(--radius-sm)',
             border: 'none', cursor: 'pointer', fontWeight: 600
           }}
@@ -144,7 +144,7 @@ export default function DataMapel() {
                   <td style={{ padding: '1rem', display: 'flex', gap: '0.5rem' }}>
                     <button 
                       onClick={() => handleOpenModal(m)}
-                      style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', padding: '0.5rem' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-primary)', cursor: 'pointer', padding: '0.5rem' }}
                     >
                       <Edit2 size={18} />
                     </button>
@@ -216,7 +216,7 @@ export default function DataMapel() {
                 </button>
                 <button 
                   type="submit" disabled={submitLoading}
-                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundColor: 'var(--primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
+                  style={{ padding: '0.75rem 1.5rem', border: 'none', backgroundcolor: 'var(--text-primary)', color: 'white', borderRadius: 'var(--radius-sm)', cursor: submitLoading ? 'not-allowed' : 'pointer' }}
                 >
                   {submitLoading ? 'Menyimpan...' : 'Simpan'}
                 </button>

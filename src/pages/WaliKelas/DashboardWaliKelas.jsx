@@ -182,7 +182,7 @@ export default function DashboardWaliKelas() {
               borderRadius: 'var(--radius-md)',
               border: '1px solid var(--primary)',
               backgroundColor: 'rgba(79, 121, 66, 0.1)',
-              color: 'var(--primary)',
+              color: 'var(--text-primary)',
               fontWeight: 600,
               fontSize: '1rem',
               cursor: 'pointer',
@@ -210,7 +210,7 @@ export default function DashboardWaliKelas() {
               backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', 
               border: '1px solid var(--secondary)', padding: '1.5rem', boxShadow: 'var(--shadow-sm)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--primary)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
                 <UsersRound size={28} />
                 <h2 style={{ margin: 0 }}>Kelas {kelasActive.nama_kelas}</h2>
               </div>
@@ -218,7 +218,7 @@ export default function DashboardWaliKelas() {
               <p style={{ color: 'var(--text-muted)', marginBottom: '1.5rem' }}>Tahun Ajaran: {kelasActive.tahun_ajaran}</p>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '1rem', borderTop: '1px solid var(--secondary)' }}>
                 <span style={{ fontWeight: 600 }}>Total Siswa</span>
-                <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--primary)' }}>{jumlahSiswa}</span>
+                <span style={{ fontSize: '1.5rem', fontWeight: 700, color: 'var(--text-primary)' }}>{jumlahSiswa}</span>
               </div>
             </div>
           </div>

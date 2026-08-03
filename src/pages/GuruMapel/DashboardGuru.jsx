@@ -81,7 +81,7 @@ export default function DashboardGuru() {
             {/* Stats */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               <div className="hover-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem', backgroundColor: 'var(--bg-card)', padding: '1.5rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', boxShadow: 'var(--shadow-sm)' }}>
-                <div style={{ padding: '1rem', backgroundColor: 'rgba(79, 121, 66, 0.1)', color: 'var(--primary)', borderRadius: '50%' }}>
+                <div style={{ padding: '1rem', backgroundColor: 'rgba(79, 121, 66, 0.1)', color: 'var(--text-primary)', borderRadius: '50%' }}>
                   <School size={28} />
                 </div>
                 <div>
@@ -137,7 +137,7 @@ export default function DashboardGuru() {
                   justifyContent: 'space-between'
                 }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--primary)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem', color: 'var(--text-primary)' }}>
                       <BookOpen size={24} />
                       <h3 style={{ margin: 0 }}>{j.mapel?.nama_mapel}</h3>
                     </div>
@@ -160,7 +160,7 @@ export default function DashboardGuru() {
                       justifyContent: 'center', 
                       gap: '0.5rem', 
                       backgroundColor: 'rgba(79, 121, 66, 0.1)', 
-                      color: 'var(--primary)', 
+                      color: 'var(--text-primary)', 
                       padding: '0.75rem', 
                       borderRadius: 'var(--radius-md)', 
                       fontWeight: 600,
