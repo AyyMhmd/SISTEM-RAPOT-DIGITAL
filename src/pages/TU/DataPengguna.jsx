@@ -8,6 +8,7 @@ export default function DataPengguna() {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [filterRole, setFilterRole] = useState('');
   
   const [formData, setFormData] = useState({
     email: '',
@@ -148,8 +149,21 @@ export default function DataPengguna() {
 
   return (
     <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Kelola Data Pengguna</h1>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <select
+            value={filterRole}
+            onChange={(e) => setFilterRole(e.target.value)}
+            style={{ padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)', backgroundColor: 'var(--bg-card)', color: 'var(--text-main)' }}
+          >
+            <option value="">Semua Role</option>
+            <option value="GURU_MAPEL">Guru Mapel</option>
+            <option value="WALI_KELAS">Wali Kelas</option>
+            <option value="KEPALA_SEKOLAH">Kepala Sekolah</option>
+            <option value="TU">Tata Usaha</option>
+            <option value="SISWA">Siswa</option>
+          </select>
         <button 
           onClick={() => {
             setEditingId(null);
@@ -166,6 +180,7 @@ export default function DataPengguna() {
         >
           <Plus size={18} /> Tambah Pengguna
         </button>
+        </div>
       </div>
 
       <div style={{ backgroundColor: 'var(--bg-card)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--secondary)', overflow: 'hidden' }}>
@@ -184,7 +199,7 @@ export default function DataPengguna() {
             ) : pengguna.length === 0 ? (
               <tr><td colSpan="4" style={{ padding: '2rem', textAlign: 'center' }}>Belum ada data pengguna.</td></tr>
             ) : (
-              pengguna.map((u) => (
+              (filterRole ? pengguna.filter(u => u.role === filterRole) : pengguna).map((u) => (
                 <tr key={u.id} style={{ borderTop: '1px solid var(--secondary)' }}>
                   <td style={{ padding: '1rem', fontWeight: 600 }}>{u.nama_lengkap}</td>
                   <td style={{ padding: '1rem' }}>

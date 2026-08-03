@@ -14,6 +14,8 @@ export default function DataSiswa() {
   const [editingId, setEditingId] = useState(null);
   const [submitLoading, setSubmitLoading] = useState(false);
   
+  const [filterKelas, setFilterKelas] = useState('');
+  
   const [formData, setFormData] = useState({
     nisn: '',
     nis: '',
@@ -311,7 +313,17 @@ export default function DataSiswa() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '1.5rem', margin: 0 }}>Kelola Data Siswa</h1>
-        <div style={{ display: 'flex', gap: '1rem' }}>
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <select 
+            value={filterKelas}
+            onChange={(e) => setFilterKelas(e.target.value)}
+            style={{ padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)', backgroundColor: 'var(--bg-card)', color: 'var(--text-main)' }}
+          >
+            <option value="">Semua Kelas</option>
+            {kelas.map(k => (
+              <option key={k.id} value={k.id}>{k.nama_kelas}</option>
+            ))}
+          </select>
           <input 
             type="file" 
             accept=".xlsx, .xls" 
@@ -361,7 +373,7 @@ export default function DataSiswa() {
             ) : siswa.length === 0 ? (
               <tr><td colSpan="5" style={{ padding: '2rem', textAlign: 'center' }}>Belum ada data siswa.</td></tr>
             ) : (
-              siswa.map((s) => (
+              (filterKelas ? siswa.filter(s => s.kelas_id === filterKelas) : siswa).map((s) => (
                 <tr key={s.id} style={{ borderTop: '1px solid var(--secondary)' }}>
                   <td style={{ padding: '1rem' }}>
                     <div style={{ fontWeight: 600 }}>{s.nisn || '-'}</div>
