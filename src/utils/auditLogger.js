@@ -11,11 +11,23 @@ import { supabase } from '../lib/supabaseClient';
  */
 export const catatLog = async (userId, namaPengguna, role, aksi, keterangan) => {
   try {
+    let finalNama = namaPengguna;
+    let finalRole = role;
+
+    // Jika namaPengguna atau role kosong (undefined), ambil dari database users
+    if (!finalNama || !finalRole) {
+      const { data } = await supabase.from('users').select('nama_lengkap, role').eq('id', userId).single();
+      if (data) {
+        finalNama = finalNama || data.nama_lengkap;
+        finalRole = finalRole || data.role;
+      }
+    }
+
     const { error } = await supabase.from('log_aktivitas').insert([
       {
         user_id: userId,
-        nama_pengguna: namaPengguna,
-        role: role,
+        nama_pengguna: finalNama || 'Unknown User',
+        role: finalRole || 'Unknown Role',
         aksi: aksi,
         keterangan: keterangan
       }
