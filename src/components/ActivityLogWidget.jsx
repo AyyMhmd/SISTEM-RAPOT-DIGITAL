@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
 import { Clock, Info, X } from 'lucide-react';
+import Swal from 'sweetalert2';
 
 /**
  * ActivityLogWidget Component
@@ -49,6 +50,7 @@ export default function ActivityLogWidget({ roleView }) {
       setLogs(data);
     } catch (error) {
       console.error('Error fetching logs:', error);
+      Swal.fire('Error Widget', 'Gagal memuat histori: ' + error.message, 'error');
     } finally {
       setLoading(false);
     }
