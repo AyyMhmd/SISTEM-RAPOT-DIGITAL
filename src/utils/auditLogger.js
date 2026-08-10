@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabaseClient';
+import Swal from 'sweetalert2';
 
 /**
  * Mencatat aktivitas pengguna ke dalam tabel log_aktivitas.
@@ -35,8 +36,10 @@ export const catatLog = async (userId, namaPengguna, role, aksi, keterangan) => 
 
     if (error) {
       console.error('Gagal mencatat log aktivitas:', error);
+      Swal.fire('Error Debug Log', 'Gagal insert log: ' + error.message + ' (Detail: ' + error.details + ')', 'error');
     }
   } catch (err) {
     console.error('Terjadi kesalahan saat mencatat log aktivitas:', err);
+    Swal.fire('Error Catch Log', err.message, 'error');
   }
 };
