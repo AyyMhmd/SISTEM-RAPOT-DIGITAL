@@ -3,6 +3,7 @@ import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
 import { Save, AlertCircle } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { catatLog } from '../../utils/auditLogger';
 
 export default function InputNilai() {
   const { user } = useAuth();
@@ -143,6 +144,9 @@ export default function InputNilai() {
         .upsert(payload, { onConflict: 'siswa_id,mapel_id,semester,tahun_ajaran' });
 
       if (error) throw error;
+      
+      await catatLog(user.id, user.nama_lengkap, user.role, 'TAMBAH', `Menginput/memperbarui nilai untuk Mapel: ${jadwalAktif.mapel?.nama_mapel} Kelas: ${jadwalAktif.kelas?.nama_kelas} Semester: ${selectedSemester}`);
+      
       Swal.fire('Berhasil!', 'Nilai berhasil disimpan!', 'success');
     } catch (error) {
       console.error('Error saving nilai:', error);
