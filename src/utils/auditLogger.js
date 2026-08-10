@@ -15,7 +15,13 @@ export const catatLog = async (userId, namaPengguna, role, aksi, keterangan) => 
     let finalNama = namaPengguna;
     let finalRole = role;
 
-    // Jika namaPengguna atau role kosong (undefined), ambil dari database users
+    // Supabase auth user object defaults to role: 'authenticated'.
+    // We want the application role ('TU', 'KEPALA_SEKOLAH', dll).
+    if (finalRole === 'authenticated') {
+      finalRole = null;
+    }
+
+    // Jika namaPengguna atau role kosong (undefined/null), ambil dari database users
     if (!finalNama || !finalRole) {
       const { data } = await supabase.from('users').select('nama_lengkap, role').eq('id', userId).single();
       if (data) {
