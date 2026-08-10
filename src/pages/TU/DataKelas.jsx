@@ -2,8 +2,11 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import Swal from 'sweetalert2';
+import { useAuth } from '../../contexts/AuthContext';
+import { catatLog } from '../../utils/auditLogger';
 
 export default function DataKelas() {
+  const { user } = useAuth();
   const [kelas, setKelas] = useState([]);
   const [waliKelasList, setWaliKelasList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -61,9 +64,11 @@ export default function DataKelas() {
       if (editId) {
         const { error } = await supabase.from('kelas').update(payload).eq('id', editId);
         if (error) throw error;
+        await catatLog(user.id, user.nama_lengkap, user.role, 'EDIT', `Mengubah data kelas: ${payload.nama_kelas}`);
       } else {
         const { error } = await supabase.from('kelas').insert([payload]);
         if (error) throw error;
+        await catatLog(user.id, user.nama_lengkap, user.role, 'TAMBAH', `Menambahkan kelas baru: ${payload.nama_kelas}`);
       }
       
       setIsModalOpen(false);
@@ -90,8 +95,12 @@ export default function DataKelas() {
     if (!result.isConfirmed) return;
 
     try {
+      const kelasToDelete = kelas.find(k => k.id === id);
       const { error } = await supabase.from('kelas').delete().eq('id', id);
       if (error) throw error;
+      
+      await catatLog(user.id, user.nama_lengkap, user.role, 'HAPUS', `Menghapus data kelas: ${kelasToDelete?.nama_kelas || 'Unknown'}`);
+      
       Swal.fire('Terhapus!', 'Kelas berhasil dihapus.', 'success');
       fetchKelas();
     } catch (error) {
