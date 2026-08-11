@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabaseClient';
 import { useAuth } from '../../contexts/AuthContext';
-import { Save, AlertCircle } from 'lucide-react';
+import { Save, AlertCircle, Wand2 } from 'lucide-react';
 import Swal from 'sweetalert2';
 import { catatLog } from '../../utils/auditLogger';
 
@@ -15,6 +15,7 @@ export default function InputNilai() {
   const [siswaNilai, setSiswaNilai] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [tpPengetahuan, setTpPengetahuan] = useState('');
 
   useEffect(() => {
     if (user) fetchJadwal();
@@ -158,6 +159,27 @@ export default function InputNilai() {
 
   const activeKkm = jadwal.find(j => j.id === selectedJadwal)?.mapel?.kkm || 75;
 
+  const generateDeskripsiOtomatis = () => {
+    if (!tpPengetahuan) {
+      Swal.fire('Perhatian', 'Silakan isi Tujuan Pembelajaran (TP) terlebih dahulu.', 'warning');
+      return;
+    }
+
+    setSiswaNilai(prev => prev.map(item => {
+      const rataRata = calculateRataRata(item.nilai_tugas, item.nilai_uts, item.nilai_uas);
+      let deskripsi = '';
+      if (rataRata >= 90) {
+        deskripsi = `Sangat baik dalam menguasai materi ${tpPengetahuan}.`;
+      } else if (rataRata >= activeKkm) {
+        deskripsi = `Baik dalam memahami materi ${tpPengetahuan}.`;
+      } else {
+        deskripsi = `Perlu bimbingan lebih lanjut dalam memahami materi ${tpPengetahuan}.`;
+      }
+      return { ...item, deskripsi_pengetahuan: deskripsi };
+    }));
+    Swal.fire('Berhasil', 'Deskripsi otomatis telah di-generate untuk semua siswa.', 'success');
+  };
+
   return (
     <div>
       <h1 style={{ fontSize: '1.5rem', marginBottom: '2rem' }}>Input Nilai Siswa</h1>
@@ -196,7 +218,32 @@ export default function InputNilai() {
           </select>
         </div>
 
-        <div>
+        <div style={{ flex: '1 1 250px' }}>
+          <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>Tujuan Pembelajaran (TP)</label>
+          <input 
+            type="text"
+            placeholder="Contoh: Bilangan Bulat dan Pecahan"
+            value={tpPengetahuan}
+            onChange={(e) => setTpPengetahuan(e.target.value)}
+            style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
+          />
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button 
+            onClick={generateDeskripsiOtomatis}
+            disabled={siswaNilai.length === 0}
+            title="Generate otomatis berdasarkan KKM dan TP"
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              backgroundColor: '#3b82f6', color: 'white',
+              padding: '0.75rem', borderRadius: 'var(--radius-sm)',
+              border: 'none', cursor: siswaNilai.length === 0 ? 'not-allowed' : 'pointer', 
+              fontWeight: 600, opacity: siswaNilai.length === 0 ? 0.7 : 1
+            }}
+          >
+            <Wand2 size={18} /> Generate
+          </button>
           <button 
             onClick={handleSimpan}
             disabled={saving || siswaNilai.length === 0}
