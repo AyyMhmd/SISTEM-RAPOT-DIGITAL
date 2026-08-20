@@ -292,7 +292,7 @@ export default function RaporComponent({
       </div>
 
       <style dangerouslySetInnerHTML={{
-        __html: \
+        __html: `
         @media print {
           body * {
             visibility: hidden;
@@ -317,7 +317,7 @@ export default function RaporComponent({
             margin: 10mm;
           }
         }
-      \}} />
+      `}} />
     </div>
   );
 }
