@@ -221,14 +221,16 @@ export default function DataSiswa() {
       return;
     }
 
-    const kelasOptions = {};
+    const kelasOptions = {
+      'auto': '== OTOMATIS BACA KOLOM "Rombel Saat Ini" =='
+    };
     kelas.forEach(k => {
       kelasOptions[k.id] = k.nama_kelas;
     });
 
     const { value: selectedKelasId } = await Swal.fire({
       title: 'Pilih Kelas Tujuan',
-      text: 'Siswa dari file Excel ini akan dimasukkan ke kelas mana?',
+      text: 'Pilih kelas manual ATAU pilih otomatis (pastikan Excel punya kolom "Rombel Saat Ini" atau "Kelas").',
       input: 'select',
       inputOptions: kelasOptions,
       inputPlaceholder: 'Pilih Kelas...',
@@ -301,6 +303,19 @@ export default function DataSiswa() {
             tanggalLahir = row['Tanggal Lahir']; 
           }
 
+          let finalKelasId = selectedKelasId;
+          if (selectedKelasId === 'auto') {
+            const namaRombel = row['Rombel Saat Ini'] || row['Rombel'] || row['Kelas'] || '';
+            const matchedKelas = kelas.find(k => k.nama_kelas.toLowerCase().trim() === namaRombel.toString().toLowerCase().trim());
+            if (matchedKelas) {
+              finalKelasId = matchedKelas.id;
+            } else {
+              failCount++;
+              console.warn(`Kelas "${namaRombel}" tidak ditemukan untuk siswa ${nama}`);
+              continue; // Skip data ini karena kelasnya tidak ditemukan di sistem
+            }
+          }
+
           // Generate Email & Password Default
           const email = `${nisn}@smknangkaleah.sch.id`.toLowerCase();
           const password = `Siswa123!`;
@@ -329,7 +344,7 @@ export default function DataSiswa() {
               nis,
               nama_lengkap: nama,
               jenis_kelamin: jk,
-              kelas_id: selectedKelasId,
+              kelas_id: finalKelasId,
               tempat_lahir: tempatLahir,
               tanggal_lahir: tanggalLahir,
               agama,
@@ -352,13 +367,16 @@ export default function DataSiswa() {
           }
         } // End loop
 
-        const kelasTujuanName = kelas.find(k => k.id === selectedKelasId)?.nama_kelas || 'Unknown';
-        await catatLog(user.id, user.nama_lengkap, user.role, 'IMPORT EXCEL', `Mengimpor ${successCount} data siswa ke Kelas ${kelasTujuanName}`);
+        const kelasTujuanName = selectedKelasId === 'auto' 
+          ? 'Berbagai Kelas (Otomatis)' 
+          : (kelas.find(k => k.id === selectedKelasId)?.nama_kelas || 'Unknown');
+        
+        await catatLog(user.id, user.nama_lengkap, user.role, 'IMPORT EXCEL', `Mengimpor ${successCount} data siswa ke ${kelasTujuanName}`);
 
         fetchData();
         Swal.fire(
           'Import Selesai!',
-          `Berhasil: ${successCount} siswa.<br/>Gagal/Dilewati: ${failCount} siswa (NISN duplikat atau kosong).`,
+          `Berhasil: ${successCount} siswa.<br/>Gagal/Dilewati: ${failCount} siswa (NISN duplikat/kosong atau kelas tidak ditemukan).`,
           'success'
         );
 
