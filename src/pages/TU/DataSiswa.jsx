@@ -282,7 +282,7 @@ export default function DataSiswa() {
             continue; // Skip jika tidak ada NISN
           }
 
-          const nis = row['NIS']?.toString() || row['nis']?.toString() || '';
+          const nis = row['NIS']?.toString() || row['nis']?.toString() || null;
           const nama = row['Nama Lengkap'] || row['nama'] || row['NAMA'] || 'Siswa Tanpa Nama';
           const lp = row['L/P'] || row['JK'] || row['Jenis Kelamin'] || 'L';
           const jk = lp.toUpperCase().startsWith('P') ? 'P' : 'L';
