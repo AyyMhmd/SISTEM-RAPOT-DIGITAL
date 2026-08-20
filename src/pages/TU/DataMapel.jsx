@@ -12,7 +12,7 @@ export default function DataMapel() {
   
   const [formData, setFormData] = useState({
     nama_mapel: '',
-    kelompok: 'A',
+    kelompok: 'Mata Pelajaran Umum',
     kkm: 75
   });
 
@@ -37,12 +37,12 @@ export default function DataMapel() {
     if (m) {
       setFormData({
         nama_mapel: m.nama_mapel,
-        kelompok: m.kelompok || 'A',
+        kelompok: m.kelompok || 'Mata Pelajaran Umum',
         kkm: m.kkm || 75
       });
       setEditingId(m.id);
     } else {
-      setFormData({ nama_mapel: '', kelompok: 'A', kkm: 75 });
+      setFormData({ nama_mapel: '', kelompok: 'Mata Pelajaran Umum', kkm: 75 });
       setEditingId(null);
     }
     setIsModalOpen(true);
@@ -136,7 +136,7 @@ export default function DataMapel() {
                       padding: '0.25rem 0.5rem', backgroundColor: 'var(--bg-main)', 
                       borderRadius: '4px', fontWeight: 600, fontSize: '0.875rem' 
                     }}>
-                      Kelompok {m.kelompok}
+                      {m.kelompok}
                     </span>
                   </td>
                   <td style={{ padding: '1rem' }}>{m.nama_mapel}</td>
@@ -191,9 +191,9 @@ export default function DataMapel() {
                   onChange={(e) => setFormData({...formData, kelompok: e.target.value})}
                   style={{ width: '100%', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--secondary)' }}
                 >
-                  <option value="A">Kelompok A (Nasional)</option>
-                  <option value="B">Kelompok B (Kewilayahan)</option>
-                  <option value="C">Kelompok C (Kejuruan)</option>
+                  <option value="Mata Pelajaran Umum">Mata Pelajaran Umum</option>
+                  <option value="Mata Pelajaran Kejuruan">Mata Pelajaran Kejuruan</option>
+                  <option value="C1. Dasar Bidang Keahlian">C1. Dasar Bidang Keahlian</option>
                   <option value="Muatan Lokal">Muatan Lokal</option>
                 </select>
               </div>

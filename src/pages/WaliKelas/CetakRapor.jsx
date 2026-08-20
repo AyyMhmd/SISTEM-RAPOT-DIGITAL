@@ -19,9 +19,31 @@ export default function CetakRapor() {
   const [raporData, setRaporData] = useState(null);
   const [raporLoading, setRaporLoading] = useState(false);
 
+  const [kepsek, setKepsek] = useState(null);
+
   useEffect(() => {
-    if (user) fetchKelasList();
+    if (user) {
+      fetchKelasList();
+      fetchKepsek();
+    }
   }, [user]);
+
+  const fetchKepsek = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('nama_lengkap')
+        .eq('role', 'KEPSEK')
+        .limit(1)
+        .single();
+      
+      if (!error && data) {
+        setKepsek(data.nama_lengkap);
+      }
+    } catch (error) {
+      console.error('Error fetching kepsek:', error);
+    }
+  };
 
   useEffect(() => {
     if (kelasActive) fetchSiswaForClass(kelasActive.id);
@@ -253,6 +275,7 @@ export default function CetakRapor() {
           nilai={raporData.nilai}
           raporWali={raporData.raporWali}
           absensi={raporData.absensi}
+          kepsek={kepsek}
           onPrint={handlePrint}
           onSendWA={handleKirimWA}
         />
